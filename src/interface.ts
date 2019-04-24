@@ -48,3 +48,8 @@ export interface Plugin {
     bind: (app: any) => void;
     [propName: string]: any;
 }
+
+// 调试参数
+export interface DebugOptions {
+    devProjectKey?: string;
+}

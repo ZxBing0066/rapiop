@@ -4,8 +4,7 @@ import _ from 'lodash';
 import { loadResources } from './lib/load';
 import { Event, EVENT_TYPES } from './lib/event';
 import { getProjectkeyFromPath } from './lib/route';
-import { Config, Option, ProjectOption, RegisterConfig, Plugin } from './interface';
-import global from './global';
+import { Config, Option, ProjectOption, RegisterConfig, Plugin, DebugOptions } from './interface';
 
 const isInIframe = window.self !== window.top;
 
@@ -42,6 +41,8 @@ export default class App {
     public EVENT_TYPES = EVENT_TYPES;
     // frame是否已注册
     frameRegistered: boolean = false;
+    // 调试用参数
+    debugOptions: DebugOptions;
     constructor(option: Option) {
         this.init(option);
     }
@@ -49,11 +50,12 @@ export default class App {
     init = async (option: Option) => {
         this.event.dispatchEvent(EVENT_TYPES.BEFORE_INIT);
 
-        const { plugins = [], services = [], frameKey = 'frame', homeKey = 'home', getConfig } = option;
+        const { plugins = [], services = [], frameKey = 'frame', homeKey = 'home', getConfig, debug = {} } = option;
         if (!getConfig) {
             console.error(`Must provide getConfig when init App`);
             return;
         }
+        this.debugOptions = debug;
         // 无匹配的项目匹配到home
         this.homeKey = homeKey;
         // 注册插件
@@ -97,7 +99,7 @@ export default class App {
         // dispatch history change after init
         historyHandler(false);
         // 调试frame或iframe中时不做frame加载
-        if (global.devProjectKey !== frameKey && !isInIframe && !this.frameRegistered) {
+        if (this.debugOptions.devProjectKey !== frameKey && !isInIframe && !this.frameRegistered) {
             const frameConfig = this.config[frameKey] || {};
             loadResources(frameConfig.file);
         }
@@ -255,11 +257,11 @@ export default class App {
                     console.warn(`project ${projectKey} has no file`);
                     return;
                 }
-                if (global.devProjectKey === projectKey) {
+                if (this.debugOptions.devProjectKey === projectKey) {
                     console.warn(`debug project ${projectKey} without load file`);
                     return;
                 }
-                loadResources(projectConfig.file, !global.devProjectKey);
+                loadResources(projectConfig.file, !this.debugOptions.devProjectKey);
                 return;
             }
             // 已经load时，触发mount

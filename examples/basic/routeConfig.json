@@ -1,0 +1,10 @@
+{
+    "demo": {
+        "url": "^/demo/",
+        "href": "/demo/"
+    },
+    "demo-2": {
+        "url": "^/demo-2/",
+        "href": "/demo-2/"
+    }
+}

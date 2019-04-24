@@ -1,0 +1,43 @@
+{
+  "name": "@rapiop/rapiop",
+  "version": "0.0.1",
+  "description": "Run all project in one place/project",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "NODE_ENV=development webpack-dev-server",
+    "build": "NODE_ENV=production webpack",
+    "build:lib": "babel src/ -d lib/ -x \".js\",\".ts\"",
+    "publish:patch": "npm version patch && npm publish"
+  },
+  "author": "ZxBing0066",
+  "license": "MIT",
+  "dependencies": {
+    "@babel/cli": "^7.4.3",
+    "@types/history": "^4.7.2",
+    "@types/lodash": "^4.14.122",
+    "@types/scriptjs": "^0.0.2",
+    "axios": "^0.18.0",
+    "history": "^4.7.2",
+    "lodash": "^4.17.11",
+    "scriptjs": "^2.5.9"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.2.0",
+    "@babel/plugin-proposal-class-properties": "^7.3.4",
+    "@babel/plugin-proposal-object-rest-spread": "^7.3.4",
+    "@babel/plugin-transform-runtime": "^7.2.0",
+    "@babel/preset-env": "^7.2.0",
+    "@babel/preset-typescript": "^7.3.3",
+    "@babel/runtime-corejs2": "^7.2.0",
+    "babel-eslint": "^10.0.1",
+    "babel-loader": "^8.0.4",
+    "babel-plugin-lodash": "^3.3.4",
+    "eslint": "^5.7.0",
+    "html-webpack-plugin": "^3.2.0",
+    "typescript": "^3.3.3333",
+    "webpack": "^4.23.1",
+    "webpack-cli": "^3.1.2",
+    "webpack-dev-server": "^3.1.10"
+  }
+}

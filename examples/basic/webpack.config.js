@@ -28,7 +28,11 @@ const webpackConfig = {
             }
         ]
     },
-    plugins: [new HtmlWebpackPlugin()],
+    plugins: [
+        new HtmlWebpackPlugin({
+            template: 'index.html'
+        })
+    ],
     devServer: {
         port: 8666,
         disableHostCheck: true,

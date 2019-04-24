@@ -703,8 +703,10 @@
     lodash "^4.17.11"
     to-fast-properties "^2.0.0"
 
-"@rapiop/rapiop@file:../..":
+"@rapiop/rapiop@^0.0.1":
   version "0.0.1"
+  resolved "https://registry.yarnpkg.com/@rapiop/rapiop/-/rapiop-0.0.1.tgz#874319343ecf9a0149c86441a4d458b4d3c16f7d"
+  integrity sha512-1+ZXWeZzu0zgqKjgg+zfNOmGST77Rv8tSDKsjCxuTvDmL7SDTSzIddJo7KgtRf9dNHoYpVTRWDhL9ZaywF1WAg==
   dependencies:
     "@babel/cli" "^7.4.3"
     "@types/history" "^4.7.2"

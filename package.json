@@ -3,6 +3,21 @@
   "version": "0.0.1",
   "description": "Run all project in one place/project",
   "main": "lib/index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rapiop/rapiop.git"
+  },
+  "keywords": [
+    "rapiop",
+    "spa"
+  ],
+  "bugs": {
+    "url": "https://github.com/rapiop/rapiop/issues"
+  },
+  "homepage": "https://github.com/rapiop/rapiop#readme",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "NODE_ENV=development webpack-dev-server",

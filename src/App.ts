@@ -180,15 +180,16 @@ export default class App {
             return console.error(`Cant't call registerFrame multiple times`);
         }
         this.frameRegistered = true;
-
-        if (this.inited) {
-        } else {
-            this.event.addEventListener(EVENT_TYPES.AFTER_INIT, () => {
-                frameMount(this.rootDOM).then((mountDOM: Element) => {
-                    this.mountDOM = mountDOM;
-                    this.event.dispatchEvent(EVENT_TYPES.AFTER_FRAME_REGISTERED);
-                });
+        const mountFrame = () => {
+            frameMount(this.rootDOM).then((mountDOM: Element) => {
+                this.mountDOM = mountDOM;
+                this.event.dispatchEvent(EVENT_TYPES.AFTER_FRAME_REGISTERED);
             });
+        };
+        if (this.inited) {
+            mountFrame();
+        } else {
+            this.event.addEventListener(EVENT_TYPES.AFTER_INIT, mountFrame);
         }
     };
     registry = (...args: any[]) => {

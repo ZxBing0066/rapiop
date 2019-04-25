@@ -21,9 +21,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "NODE_ENV=development webpack-dev-server",
-    "build": "NODE_ENV=production webpack",
-    "build:lib": "babel src/ -d lib/ -x \".js\",\".ts\"",
-    "publish:patch": "npm version patch && npm publish"
+    "build": "rm -rf build/ && NODE_ENV=production webpack",
+    "build:lib": "rm -rf lib/ && babel src/ -d lib/ -x \".js\",\".ts\"",
+    "before-publish": "npm run build:lib && npm run build",
+    "publish:patch": "npm run before-publish && npm version patch && npm publish"
   },
   "author": "ZxBing0066",
   "license": "MIT",

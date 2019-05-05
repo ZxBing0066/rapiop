@@ -138,6 +138,9 @@ export default class App {
     };
     initIframe = () => {
         const mountDOM = document.createElement('div');
+        mountDOM.style.width = '100%';
+        mountDOM.style.height = '100%';
+        mountDOM.style.overflow = 'auto';
         document.body.appendChild(mountDOM);
         this.mountDOM = mountDOM;
     };

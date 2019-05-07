@@ -8,13 +8,18 @@
 顾本 lib 应运而生，本 lib 的职责就是让所有主流的框架说搭建的网站，无论原来在哪里，只需要做小小的改动，就可以和其它网站跑
 在一处，避免网站的碎片化。
 
+## 想法
+
+目前主流框架大体是根据代码来生成 dom 并嵌入页面中，依赖的只是一个固定的 mount dom 元素，利用主流框架的这个一致性，将项目
+的初始化嵌入 dom 的行为抽离出来，便可实现多项目共存
+
 ## 如何使用
 
 -   新建一个前端项目作为所有项目的容器
 -   项目中安装 rapiop
 
     ```sh
-    yarn add rapiop
+    yarn add @rapiop/rapiop
     ```
 
 -   参考`examples/basic/index.ts`，创建一个新的实例。
@@ -26,12 +31,10 @@
         return new Promise(resolve =>
             resolve({
                 demo: {
-                    url: '^/demo/',
-                    href: '/demo/'
+                    url: '^/demo/'
                 },
                 'demo-2': {
-                    url: '^/demo-2/',
-                    href: '/demo-2/'
+                    url: '^/demo-2/'
                 }
             })
         );
@@ -41,6 +44,8 @@
         getConfig: getConfig
     });
     ```
+
+    `getConfig`为必要参数
 
 -   注册一个容器
 
@@ -60,7 +65,7 @@
                 (info, key) => {
                     const li = document.createElement('li');
                     const a = document.createElement('a');
-                    a.onclick = () => app.navigate(info.href);
+                    a.onclick = () => app.navigate(`\\${info.key}\\`);
                     a.innerText = key;
                     li.appendChild(a);
                     ul.appendChild(li);
@@ -88,11 +93,43 @@
             const content = document.createElement('div');
             content.innerText = 'this is my home';
             mountDOM.appendChild(content);
-            console.log('mounted');
+            console.log('home mounted');
         },
         (mountDOM: Element) => {
             mountDOM.innerHTML = null;
-            console.log('unmounted');
+            console.log('home unmounted');
+        }
+    );
+
+    app.register(
+        'demo',
+        (mountDOM: Element) => {
+            const content = document.createElement('div');
+            content.innerText = 'this is my demo';
+            mountDOM.appendChild(content);
+            console.log('demo mounted');
+        },
+        (mountDOM: Element) => {
+            mountDOM.innerHTML = null;
+            console.log('demo unmounted');
+        }
+    );
+
+    app.register(
+        'demo-2',
+        (mountDOM: Element) => {
+            const content = document.createElement('div');
+            content.innerText = 'this is my demo-2';
+            mountDOM.appendChild(content);
+            console.log('demo-2 mounted');
+        },
+        (mountDOM: Element) => {
+            mountDOM.innerHTML = null;
+            console.log('demo-2 unmounted');
         }
     );
     ```
+
+    `home`为默认页面 key，若 config 中无可匹配陆游的项目，则渲染该页面，可使用`option.homeKey`来自定义
+
+    启动后项目根据 config 中的 url 规则匹配的地址进入对应项目

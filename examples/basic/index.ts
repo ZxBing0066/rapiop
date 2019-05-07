@@ -61,11 +61,11 @@ app.register(
         const content = document.createElement('div');
         content.innerText = 'this is my home';
         mountDOM.appendChild(content);
-        console.log('mounted');
+        console.log('home mounted');
     },
     (mountDOM: Element) => {
         mountDOM.innerHTML = null;
-        console.log('unmounted');
+        console.log('home unmounted');
     }
 );
 
@@ -75,11 +75,11 @@ app.register(
         const content = document.createElement('div');
         content.innerText = 'this is my demo';
         mountDOM.appendChild(content);
-        console.log('mounted');
+        console.log('demo mounted');
     },
     (mountDOM: Element) => {
         mountDOM.innerHTML = null;
-        console.log('unmounted');
+        console.log('demo unmounted');
     }
 );
 
@@ -89,10 +89,10 @@ app.register(
         const content = document.createElement('div');
         content.innerText = 'this is my demo-2';
         mountDOM.appendChild(content);
-        console.log('mounted');
+        console.log('demo-2 mounted');
     },
     (mountDOM: Element) => {
         mountDOM.innerHTML = null;
-        console.log('unmounted');
+        console.log('demo-2 unmounted');
     }
 );

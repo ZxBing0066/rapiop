@@ -14,7 +14,7 @@
   "author": "ZxBing0066",
   "license": "MIT",
   "dependencies": {
-    "@rapiop/rapiop": "^0.0.1"
+    "@rapiop/rapiop": "latest"
   },
   "devDependencies": {
     "@babel/cli": "^7.4.3",

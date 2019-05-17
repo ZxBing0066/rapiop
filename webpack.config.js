@@ -17,7 +17,7 @@ const webpackConfig = {
         libraryTarget: 'umd'
     },
     mode: env,
-    devtool: isDevelopment ? 'inline-source-map' : false,
+    devtool: isDevelopment ? 'inline-source-map' : 'source-map',
     resolve: {
         extensions: ['.ts', '.js', '.json'],
         modules: [path.resolve(__dirname, '.'), 'node_modules']

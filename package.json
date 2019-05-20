@@ -3,9 +3,6 @@
   "version": "0.0.4",
   "description": "Run all project in one place/project",
   "main": "build/main.min.js",
-  "directories": {
-    "lib": "lib"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/rapiop/rapiop.git"
@@ -22,8 +19,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "NODE_ENV=development webpack-dev-server",
     "build": "rm -rf build/ && NODE_ENV=production webpack",
-    "build:lib": "rm -rf lib/ && babel src/ -d lib/ -x \".js\",\".ts\"",
-    "before-publish": "npm run build:lib && npm run build",
+    "before-publish": "npm run build",
     "publish:patch": "npm run before-publish && npm version patch && npm publish"
   },
   "author": "ZxBing0066",

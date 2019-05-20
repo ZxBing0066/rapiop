@@ -12,8 +12,7 @@ const webpackConfig = {
         path: path.resolve(__dirname, 'build'),
         filename: '[name].min.js',
         publicPath: '/router',
-        library: '__RAPIOP_APP',
-        libraryExport: 'default',
+        library: 'RAPIOP',
         libraryTarget: 'umd'
     },
     mode: env,

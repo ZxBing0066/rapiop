@@ -20,7 +20,6 @@ export interface Config {
 // 实例的初始化配置
 export interface Option {
     plugins?: any[];
-    services?: any[];
     frameKey?: string;
     homeKey?: string;
     getConfig(): Promise<Config>;

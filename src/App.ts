@@ -13,8 +13,6 @@ const MESSAGE_TYPE = 'RAPIOP_MESSAGE';
 export default class App {
     // 事件器
     public event: Event = new Event();
-    // service 列表
-    services: any = {};
     // 根节点, for frame mount
     rootDOM: Element;
     // frame输出的节点, for project mount
@@ -44,13 +42,12 @@ export default class App {
     // 调试用参数
     debugOptions: DebugOptions;
     constructor(option: Option) {
+        this.event.dispatchEvent(EVENT_TYPES.BEFORE_INIT);
         this.init(option);
     }
     // 项目初始化
     init = async (option: Option) => {
-        this.event.dispatchEvent(EVENT_TYPES.BEFORE_INIT);
-
-        const { plugins = [], services = [], frameKey = 'frame', homeKey = 'home', getConfig, debug = {} } = option;
+        const { plugins = [], frameKey = 'frame', homeKey = 'home', getConfig, debug = {} } = option;
         if (!getConfig) {
             console.error(`Must provide getConfig when init App`);
             return;
@@ -61,10 +58,6 @@ export default class App {
         // 注册插件
         plugins.forEach(plugin => {
             this.registerPlugin(plugin);
-        });
-        // 注册服务
-        services.forEach(service => {
-            this.registerService(service);
         });
         if (isInIframe) {
             this.initIframe();
@@ -165,10 +158,6 @@ export default class App {
     registerPlugin = (plugin: Plugin) => {
         plugin.bind(this);
     };
-    // 服务注册
-    registerService = (service: object) => {
-        service && _.extend(this.services, service);
-    };
     registryFrame = (...args: any[]) => {
         console.warn('Please use registerFrame to instead of registryFrame');
         // @ts-ignore
@@ -195,6 +184,7 @@ export default class App {
             this.event.addEventListener(EVENT_TYPES.AFTER_INIT, mountFrame);
         }
     };
+    /** @deprecated */
     registry = (...args: any[]) => {
         console.warn('Please use register to instead of registry');
         // @ts-ignore

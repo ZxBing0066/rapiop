@@ -69,8 +69,8 @@ export default class App {
 
         // 事件监听
         this.event.addEventListener(EVENT_TYPES.PATH_CHANGE, this.refresh);
-        this.event.addEventListener(EVENT_TYPES.AFTER_FRAME_REGISTERED, this.refresh);
-        this.event.addEventListener(EVENT_TYPES.AFTER_PROJECT_REGISTERED, this.refresh);
+        this.event.addEventListener(EVENT_TYPES.AFTER_FRAME_REGISTER, this.refresh);
+        this.event.addEventListener(EVENT_TYPES.AFTER_REGISTER, this.refresh);
         this.event.addEventListener(EVENT_TYPES.UNLOCK_DOM, () => {
             if (this.waiting) {
                 this.waiting = false;
@@ -110,7 +110,7 @@ export default class App {
             if (e.data && e.data.type === MESSAGE_TYPE) {
                 const { eventType, info } = e.data;
                 switch (eventType) {
-                    case EVENT_TYPES.AFTER_PROJECT_REGISTERED:
+                    case EVENT_TYPES.AFTER_REGISTER:
                     case EVENT_TYPES.BEFORE_MOUNT:
                     case EVENT_TYPES.AFTER_MOUNT:
                     case EVENT_TYPES.BEFORE_UNMOUNT:
@@ -175,9 +175,10 @@ export default class App {
         const mountFrame = () => {
             frameMount(this.rootDOM).then((mountDOM: Element) => {
                 this.mountDOM = mountDOM;
-                this.event.dispatchEvent(EVENT_TYPES.AFTER_FRAME_REGISTERED);
+                this.event.dispatchEvent(EVENT_TYPES.AFTER_FRAME_MOUNT);
             });
         };
+        this.event.dispatchEvent(EVENT_TYPES.AFTER_FRAME_REGISTER);
         if (this.inited) {
             mountFrame();
         } else {
@@ -205,7 +206,7 @@ export default class App {
             unmount,
             option
         };
-        this.dispatchAndSyncEvent(EVENT_TYPES.AFTER_PROJECT_REGISTERED);
+        this.dispatchAndSyncEvent(EVENT_TYPES.AFTER_REGISTER);
     };
     // 刷新
     refresh = async () => {

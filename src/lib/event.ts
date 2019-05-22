@@ -36,9 +36,11 @@ export const EVENT_TYPES = {
     // 项目初始化之后
     AFTER_INIT: 'AFTER_INIT',
     // frame注册后
-    AFTER_FRAME_REGISTERED: 'AFTER_FRAME_INIT',
+    AFTER_FRAME_REGISTER: 'AFTER_FRAME_REGISTER',
+    // frame mount 后
+    AFTER_FRAME_MOUNT: 'AFTER_FRAME_MOUNT',
     // 项目注册后
-    AFTER_PROJECT_REGISTERED: 'AFTER_PROJECT_REGISTERED',
+    AFTER_REGISTER: 'AFTER_REGISTER',
     // 项目mount前
     BEFORE_MOUNT: 'BEFORE_MOUNT',
     // 项目mount后

@@ -19,13 +19,13 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "NODE_ENV=development webpack-dev-server",
     "build": "rm -rf build/ && NODE_ENV=production webpack",
+    "stats": "NODE_ENV=production webpack --profile --json > stats.json",
     "before-publish": "npm run build",
     "publish:patch": "npm run before-publish && npm version patch && npm publish"
   },
   "author": "ZxBing0066",
   "license": "MIT",
   "dependencies": {
-    "axios": "^0.18.0",
     "history": "^4.7.2",
     "lodash": "^4.17.11",
     "scriptjs": "^2.5.9"
@@ -42,6 +42,7 @@
     "@types/history": "^4.7.2",
     "@types/lodash": "^4.14.122",
     "@types/scriptjs": "^0.0.2",
+    "axios": "^0.18.0",
     "babel-eslint": "^10.0.1",
     "babel-loader": "^8.0.4",
     "babel-plugin-lodash": "^3.3.4",

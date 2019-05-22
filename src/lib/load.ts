@@ -1,4 +1,3 @@
-import axios from 'axios';
 import $script from 'scriptjs';
 /**
  * 加载并执行文件
@@ -10,13 +9,23 @@ const fileCacheMap: {
     [src: string]: 0 | 1;
 } = {};
 
+const get = (src: string) => {
+    return new Promise((resolve, reject) => {
+        var oReq = new XMLHttpRequest();
+        oReq.addEventListener('load', resolve);
+        oReq.addEventListener('error', reject);
+        oReq.open('GET', src);
+        oReq.send();
+    });
+};
+
 const cacheScript = (src: string) => {
     // start cache
     fileCacheMap[src] = 0;
     if (fileCacheMap[src]) {
         return Promise.resolve();
     }
-    return axios.get(src).then(() => {
+    return get(src).then(() => {
         // cache success
         fileCacheMap[src] = 1;
     });

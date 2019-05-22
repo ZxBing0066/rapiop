@@ -25,4 +25,5 @@ yarn-error.log*
 .vscode
 jsconfig.json
 
-docs
+/docs
+/stats.json

@@ -69,7 +69,7 @@ export default class App {
 
         // 事件监听
         this.event.addEventListener(EVENT_TYPES.PATH_CHANGE, this.refresh);
-        this.event.addEventListener(EVENT_TYPES.AFTER_FRAME_REGISTER, this.refresh);
+        this.event.addEventListener(EVENT_TYPES.AFTER_FRAME_MOUNT, this.refresh);
         this.event.addEventListener(EVENT_TYPES.AFTER_REGISTER, this.refresh);
         this.event.addEventListener(EVENT_TYPES.UNLOCK_DOM, () => {
             if (this.waiting) {

@@ -27,7 +27,6 @@
   "author": "ZxBing0066",
   "license": "MIT",
   "dependencies": {
-    "@babel/runtime-corejs2": "^7.2.0",
     "history": "^4.7.2",
     "lodash": "^4.17.11",
     "scriptjs": "^2.5.9"
@@ -37,6 +36,7 @@
     "@babel/core": "^7.2.0",
     "@babel/plugin-proposal-class-properties": "^7.3.4",
     "@babel/plugin-proposal-object-rest-spread": "^7.3.4",
+    "@babel/runtime-corejs2": "^7.2.0",
     "@babel/plugin-transform-runtime": "^7.2.0",
     "@babel/preset-env": "^7.2.0",
     "@babel/preset-typescript": "^7.3.3",

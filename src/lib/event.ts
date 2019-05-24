@@ -52,5 +52,7 @@ export const EVENT_TYPES = {
     // 地址变化
     PATH_CHANGE: 'PATH_CHANGE',
     // dom解锁
-    UNLOCK_DOM: 'UNLOCK_DOM'
+    UNLOCK_DOM: 'UNLOCK_DOM',
+    // 程序运行出错
+    ERROR: 'ERROR'
 };

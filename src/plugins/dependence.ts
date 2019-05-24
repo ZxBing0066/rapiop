@@ -34,12 +34,12 @@ class Plugin {
     bind = (app: any) => {
         app.loadDependences = this.loadDependences;
     };
-    loadDependences = async (dependences: string[], callback?: () => {}) => {
+    loadDependences = (dependences: string[], callback?: () => {}): Promise<void> => {
         function isShape(dependenceInfo: string | string[] | DependenceShape): dependenceInfo is DependenceShape {
             return Object.prototype.toString.call(dependenceInfo) === '[object Object]';
         }
-        const load = async () => {
-            const _load = (dependenceFiles: string[]) => {
+        const load = () => {
+            const _load = (dependenceFiles: string[]): Promise<void> => {
                 const getFilePath = (file: string) => this.baseUrl + '/' + file;
 
                 dependenceFiles = dependenceFiles.map((file: string) => getFilePath(file));
@@ -60,11 +60,11 @@ class Plugin {
                     dependenceFiles = dependenceFiles.concat(dependenceInfo);
                 }
             });
-
+            let handler = Promise.resolve();
             if (!_.isEmpty(dependedDependences)) {
-                await this.loadDependences(dependedDependences);
+                handler = this.loadDependences(dependedDependences);
             }
-            await _load(dependenceFiles);
+            return handler.then(() => _load(dependenceFiles));
         };
         return new Promise(resolve => {
             const _callback = () => {

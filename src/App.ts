@@ -46,7 +46,7 @@ export default class App {
         this.init(option);
     }
     // 项目初始化
-    init = async (option: Option) => {
+    init = (option: Option) => {
         const { plugins = [], frameKey = 'frame', homeKey = 'home', getConfig, debug = {} } = option;
         if (!getConfig) {
             console.error(`Must provide getConfig when init App`);
@@ -65,39 +65,45 @@ export default class App {
             this.initParent();
         }
         // 获取配置信息
-        this.config = await getConfig();
+        getConfig()
+            .then(config => {
+                this.config = config;
 
-        // 事件监听
-        this.event.addEventListener(EVENT_TYPES.PATH_CHANGE, this.refresh);
-        this.event.addEventListener(EVENT_TYPES.AFTER_FRAME_MOUNT, this.refresh);
-        this.event.addEventListener(EVENT_TYPES.AFTER_REGISTER, this.refresh);
-        this.event.addEventListener(EVENT_TYPES.UNLOCK_DOM, () => {
-            if (this.waiting) {
-                this.waiting = false;
-                this.refresh();
-            }
-        });
-
-        // 路由变化监听
-        const historyHandler = (sync: boolean = true) => {
-            if (sync) {
-                this.dispatchAndSyncEvent(EVENT_TYPES.PATH_CHANGE, {
-                    url: location.href.replace(new RegExp(`^${location.origin}`), '')
+                // 事件监听
+                this.event.addEventListener(EVENT_TYPES.PATH_CHANGE, this.refresh);
+                this.event.addEventListener(EVENT_TYPES.AFTER_FRAME_MOUNT, this.refresh);
+                this.event.addEventListener(EVENT_TYPES.AFTER_REGISTER, this.refresh);
+                this.event.addEventListener(EVENT_TYPES.UNLOCK_DOM, () => {
+                    if (this.waiting) {
+                        this.waiting = false;
+                        this.refresh();
+                    }
                 });
-            } else {
-                this.event.dispatchEvent(EVENT_TYPES.PATH_CHANGE);
-            }
-        };
-        this.history.listen(() => historyHandler(true));
-        // dispatch history change after init
-        historyHandler(false);
-        // 调试frame或iframe中时不做frame加载
-        if (this.debugOptions.devProjectKey !== frameKey && !isInIframe && !this.frameRegistered) {
-            const frameConfig = this.config[frameKey] || {};
-            loadResources(frameConfig.file);
-        }
-        this.event.dispatchEvent(EVENT_TYPES.AFTER_INIT);
-        this.inited = true;
+
+                // 路由变化监听
+                const historyHandler = (sync: boolean = true) => {
+                    if (sync) {
+                        this.dispatchAndSyncEvent(EVENT_TYPES.PATH_CHANGE, {
+                            url: location.href.replace(new RegExp(`^${location.origin}`), '')
+                        });
+                    } else {
+                        this.event.dispatchEvent(EVENT_TYPES.PATH_CHANGE);
+                    }
+                };
+                this.history.listen(() => historyHandler(true));
+                // dispatch history change after init
+                historyHandler(false);
+                // 调试frame或iframe中时不做frame加载
+                if (this.debugOptions.devProjectKey !== frameKey && !isInIframe && !this.frameRegistered) {
+                    const frameConfig = this.config[frameKey] || {};
+                    loadResources(frameConfig.file);
+                }
+                this.event.dispatchEvent(EVENT_TYPES.AFTER_INIT);
+                this.inited = true;
+            })
+            .catch(e => {
+                this.event.dispatchEvent(EVENT_TYPES.ERROR, e);
+            });
     };
     initParent = () => {
         const rootDOM = document.createElement('div');
@@ -209,14 +215,14 @@ export default class App {
         this.dispatchAndSyncEvent(EVENT_TYPES.AFTER_REGISTER);
     };
     // 刷新
-    refresh = async () => {
+    refresh = () => {
         if (this.domLock) {
             this.waiting = true;
         } else {
             this._mount();
         }
     };
-    private _mount = async () => {
+    private _mount = () => {
         const projectKey = getProjectkeyFromPath(location.pathname, this.config) || this.homeKey;
         // 匹配的项目未改变，不处理
         if (this.mountedProjectKey === projectKey) {
@@ -229,63 +235,70 @@ export default class App {
             return;
         }
         // 清理已mount项目
-        await this.unmount();
-
-        const projectConfig = this.config[projectKey] || {};
-        if (projectConfig.mode === 'iframe' && !isInIframe) {
-            // iframe mode 项目，直接创建iframe容器，mount在iframe中完成
-            this.mountedProjectKey = projectKey;
-            const iframeDOM = document.createElement('iframe');
-            iframeDOM.frameBorder = '0';
-            iframeDOM.width = '100%';
-            iframeDOM.height = '100%';
-            iframeDOM.style.display = 'block';
-            iframeDOM.src = location.href;
-            this.mountDOM.appendChild(iframeDOM);
-            this.iframeDOM = iframeDOM;
-        } else {
-            // 非iframe项目，直接load文件，并退出等待文件加载完成再次处理
-            const projectRegisterConfig = this.registerConfig[projectKey];
-            if (!projectRegisterConfig) {
-                console.info(`project didn't loaded`);
-                if (_.isEmpty(projectConfig.file)) {
-                    console.warn(`project ${projectKey} has no file`);
-                    return;
-                }
-                if (this.debugOptions.devProjectKey === projectKey) {
-                    console.warn(`debug project ${projectKey} without load file`);
-                    return;
-                }
-                loadResources(projectConfig.file, !this.debugOptions.devProjectKey);
-                return;
-            }
-            // 已经load时，触发mount
-            const { mount } = projectRegisterConfig;
-            if (!mount) {
-                console.error(`mount of project: ${projectKey} not exist`);
-                return;
-            }
-
-            this.domLock = true;
-            this.dispatchAndSyncEvent(EVENT_TYPES.BEFORE_MOUNT, {
-                projectKey,
-                config: projectConfig,
-                option: projectRegisterConfig.option
-            });
-            this.mountedProjectKey = projectKey;
-
-            // 返回promise时等待处理完成
-            const mountResult = mount(this.mountDOM);
-            if (mountResult && mountResult.then) {
-                await mountResult;
-            }
-
-            this.dispatchAndSyncEvent(EVENT_TYPES.AFTER_MOUNT);
-            this.domLock = false;
-            this.event.dispatchEvent(EVENT_TYPES.UNLOCK_DOM);
+        const unmountResult = this.unmount();
+        let handler = Promise.resolve();
+        if (unmountResult && unmountResult.then) {
+            handler = unmountResult;
         }
+        handler.then(() => {
+            const projectConfig = this.config[projectKey] || {};
+            if (projectConfig.mode === 'iframe' && !isInIframe) {
+                // iframe mode 项目，直接创建iframe容器，mount在iframe中完成
+                this.mountedProjectKey = projectKey;
+                const iframeDOM = document.createElement('iframe');
+                iframeDOM.frameBorder = '0';
+                iframeDOM.width = '100%';
+                iframeDOM.height = '100%';
+                iframeDOM.style.display = 'block';
+                iframeDOM.src = location.href;
+                this.mountDOM.appendChild(iframeDOM);
+                this.iframeDOM = iframeDOM;
+            } else {
+                // 非iframe项目，直接load文件，并退出等待文件加载完成再次处理
+                const projectRegisterConfig = this.registerConfig[projectKey];
+                if (!projectRegisterConfig) {
+                    console.info(`project didn't loaded`);
+                    if (_.isEmpty(projectConfig.file)) {
+                        console.warn(`project ${projectKey} has no file`);
+                        return;
+                    }
+                    if (this.debugOptions.devProjectKey === projectKey) {
+                        console.warn(`debug project ${projectKey} without load file`);
+                        return;
+                    }
+                    loadResources(projectConfig.file, !this.debugOptions.devProjectKey);
+                    return;
+                }
+                // 已经load时，触发mount
+                const { mount } = projectRegisterConfig;
+                if (!mount) {
+                    console.error(`mount of project: ${projectKey} not exist`);
+                    return;
+                }
+
+                this.domLock = true;
+                this.dispatchAndSyncEvent(EVENT_TYPES.BEFORE_MOUNT, {
+                    projectKey,
+                    config: projectConfig,
+                    option: projectRegisterConfig.option
+                });
+                this.mountedProjectKey = projectKey;
+
+                // 返回promise时等待处理完成
+                const mountResult = mount(this.mountDOM);
+                let handler = Promise.resolve();
+                if (mountResult && mountResult.then) {
+                    handler = mountResult;
+                }
+                handler.then(() => {
+                    this.dispatchAndSyncEvent(EVENT_TYPES.AFTER_MOUNT);
+                    this.domLock = false;
+                    this.event.dispatchEvent(EVENT_TYPES.UNLOCK_DOM);
+                });
+            }
+        });
     };
-    private unmount = async () => {
+    private unmount = (): Promise<void> => {
         // 有项目mount时，销毁
         const mountedProjectKey = this.mountedProjectKey;
         const mountedProjectKeyConfig = this.config[mountedProjectKey] || {};
@@ -310,12 +323,15 @@ export default class App {
                 }
                 // 返回promise时，等待处理完成
                 const unmountResult = unmount(this.mountDOM);
+                let handler = Promise.resolve();
                 if (unmountResult && unmountResult.then) {
-                    await unmountResult;
+                    handler = unmountResult;
                 }
-                this.event.dispatchEvent(EVENT_TYPES.AFTER_UNMOUNT);
-                this.domLock = false;
-                this.event.dispatchEvent(EVENT_TYPES.UNLOCK_DOM);
+                handler.then(() => {
+                    this.event.dispatchEvent(EVENT_TYPES.AFTER_UNMOUNT);
+                    this.domLock = false;
+                    this.event.dispatchEvent(EVENT_TYPES.UNLOCK_DOM);
+                });
             }
         }
     };

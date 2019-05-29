@@ -81,18 +81,12 @@ export default class App {
                 });
 
                 // 路由变化监听
-                const historyHandler = (sync: boolean = true) => {
-                    if (sync) {
-                        this.dispatchAndSyncEvent(EVENT_TYPES.PATH_CHANGE, {
-                            url: location.href.replace(new RegExp(`^${location.origin}`), '')
-                        });
-                    } else {
-                        this.event.dispatchEvent(EVENT_TYPES.PATH_CHANGE);
-                    }
+                const historyHandler = () => {
+                    this.event.dispatchEvent(EVENT_TYPES.PATH_CHANGE);
                 };
-                this.history.listen(() => historyHandler(true));
+                this.history.listen(() => historyHandler());
                 // dispatch history change after init
-                historyHandler(false);
+                historyHandler();
                 // 调试frame或iframe中时不做frame加载
                 if (this.debugOptions.devProjectKey !== frameKey && !isInIframe && !this.frameRegistered) {
                     const frameConfig = this.config[frameKey] || {};
@@ -338,5 +332,8 @@ export default class App {
     // 跳转
     public navigate = (url: string) => {
         this.history.push(url);
+        this.syncEvent(EVENT_TYPES.PATH_CHANGE, {
+            url
+        });
     };
 }

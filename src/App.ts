@@ -10,6 +10,8 @@ const isInIframe = window.self !== window.top;
 
 const MESSAGE_TYPE = 'RAPIOP_MESSAGE';
 
+type AnyFunction = (...args: any[]) => any;
+
 export default class App {
     // 事件器
     public event: Event = new Event();
@@ -35,6 +37,9 @@ export default class App {
     waiting: boolean = false;
     // 初始化是否完成
     inited: boolean = false;
+    hooks: {
+        [key: string]: AnyFunction;
+    } = {};
     // 所有事件，方便外部获取
     public EVENT_TYPES = EVENT_TYPES;
     // frame是否已注册
@@ -47,11 +52,12 @@ export default class App {
     }
     // 项目初始化
     init = (option: Option) => {
-        const { plugins = [], frameKey = 'frame', homeKey = 'home', getConfig, debug = {} } = option;
+        const { plugins = [], frameKey = 'frame', homeKey = 'home', getConfig, debug = {}, hooks = {} } = option;
         if (!getConfig) {
             console.error(`Must provide getConfig when init App`);
             return;
         }
+        this.hooks = hooks;
         this.debugOptions = debug;
         // 无匹配的项目匹配到home
         this.homeKey = homeKey;
@@ -216,6 +222,14 @@ export default class App {
             this._mount();
         }
     };
+    withHook = (hookName: string, originHandle: AnyFunction, args: any) => {
+        const hook = this.hooks[hookName];
+        if (hook) {
+            return hook(originHandle, args);
+        } else {
+            return originHandle;
+        }
+    };
     private _mount = () => {
         const projectKey = getProjectkeyFromPath(location.pathname, this.config) || this.homeKey;
         // 匹配的项目未改变，不处理
@@ -277,9 +291,9 @@ export default class App {
                     option: projectRegisterConfig.option
                 });
                 this.mountedProjectKey = projectKey;
-
+                const mountWithHook = this.withHook('mount', mount, { projectKey });
                 // 返回promise时等待处理完成
-                const mountResult = mount(this.mountDOM);
+                const mountResult = mountWithHook(this.mountDOM);
                 let handler = Promise.resolve();
                 if (mountResult && mountResult.then) {
                     handler = mountResult;
@@ -315,8 +329,9 @@ export default class App {
                     console.error(`unmount of project: ${mountedProjectKey} not exist`);
                     return;
                 }
-                // 返回promise时，等待处理完成
-                const unmountResult = unmount(this.mountDOM);
+                const unmountWithHook = this.withHook('unmount', unmount, { mountedProjectKey });
+                // 返回promise时等待处理完成
+                const unmountResult = unmountWithHook(this.mountDOM);
                 let handler = Promise.resolve();
                 if (unmountResult && unmountResult.then) {
                     handler = unmountResult;

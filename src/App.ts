@@ -96,7 +96,7 @@ export default class App {
                 // 调试frame或iframe中时不做frame加载
                 if (this.debugOptions.devProjectKey !== frameKey && !isInIframe && !this.frameRegistered) {
                     const frameConfig = this.config[frameKey] || {};
-                    loadResources(frameConfig.file);
+                    loadResources(frameConfig.files || frameConfig.file);
                 }
                 this.event.dispatchEvent(EVENT_TYPES.AFTER_INIT);
                 this.inited = true;
@@ -266,7 +266,7 @@ export default class App {
                 const projectRegisterConfig = this.registerConfig[projectKey];
                 if (!projectRegisterConfig) {
                     console.info(`project didn't loaded`);
-                    if (_.isEmpty(projectConfig.file)) {
+                    if (_.isEmpty(projectConfig.files || projectConfig.file)) {
                         console.warn(`project ${projectKey} has no file`);
                         return;
                     }
@@ -274,7 +274,7 @@ export default class App {
                         console.warn(`debug project ${projectKey} without load file`);
                         return;
                     }
-                    loadResources(projectConfig.file, !this.debugOptions.devProjectKey);
+                    loadResources(projectConfig.files || projectConfig.file, !this.debugOptions.devProjectKey);
                     return;
                 }
                 // 已经load时，触发mount

@@ -1,6 +1,7 @@
 // 子项目的配置信息
 export interface ProjectConfig {
     // file path
+    files?: string[];
     file?: string[];
     // link address
     href?: string;

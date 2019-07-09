@@ -3,7 +3,8 @@ import _ from 'lodash';
 
 interface DependenceShape {
     dependences: string[];
-    file: string[];
+    files?: string[];
+    file?: string[];
 }
 
 interface DependenceMap {
@@ -55,7 +56,7 @@ class Plugin {
                 const dependenceInfo = this.dependenceMap[dependence];
                 if (isShape(dependenceInfo)) {
                     dependedDependences = dependedDependences.concat(dependenceInfo.dependences);
-                    dependenceFiles = dependenceFiles.concat(dependenceInfo.file);
+                    dependenceFiles = dependenceFiles.concat(dependenceInfo.files || dependenceInfo.file);
                 } else {
                     dependenceFiles = dependenceFiles.concat(dependenceInfo);
                 }

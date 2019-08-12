@@ -44,6 +44,8 @@ export default class App {
     public EVENT_TYPES = EVENT_TYPES;
     // frame是否已注册
     frameRegistered: boolean = false;
+    // 加载文件时先缓存所有文件，然后执行
+    cacheBeforeRun: boolean;
     // 调试用参数
     debugOptions: DebugOptions;
     constructor(option: Option) {
@@ -52,11 +54,20 @@ export default class App {
     }
     // 项目初始化
     init = (option: Option) => {
-        const { plugins = [], frameKey = 'frame', homeKey = 'home', getConfig, debug = {}, hooks = {} } = option;
+        const {
+            plugins = [],
+            frameKey = 'frame',
+            homeKey = 'home',
+            cacheBeforeRun = true,
+            getConfig,
+            debug = {},
+            hooks = {}
+        } = option;
         if (!getConfig) {
             console.error(`Must provide getConfig when init App`);
             return;
         }
+        this.cacheBeforeRun = cacheBeforeRun;
         this.hooks = hooks;
         this.debugOptions = debug;
         // 无匹配的项目匹配到home
@@ -274,7 +285,10 @@ export default class App {
                         console.warn(`debug project ${projectKey} without load file`);
                         return;
                     }
-                    loadResources(projectConfig.files || projectConfig.file, !this.debugOptions.devProjectKey);
+                    loadResources(
+                        projectConfig.files || projectConfig.file,
+                        this.cacheBeforeRun && !this.debugOptions.devProjectKey
+                    );
                     return;
                 }
                 // 已经load时，触发mount

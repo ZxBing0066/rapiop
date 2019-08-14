@@ -130,6 +130,6 @@
     );
     ```
 
-    `home`为默认页面 key，若 config 中无可匹配陆游的项目，则渲染该页面，可使用`option.homeKey`来自定义
+    `home`为默认页面 key，若 config 中无可匹配路由的项目，则渲染该页面，可使用`option.homeKey`来自定义
 
     启动后项目根据 config 中的 url 规则匹配的地址进入对应项目

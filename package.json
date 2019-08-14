@@ -29,7 +29,7 @@
   "dependencies": {
     "history": "^4.7.2",
     "lodash": "^4.17.11",
-    "scriptjs": "^2.5.9"
+    "@rapiop/scriptjs": "^2.5.10"
   },
   "devDependencies": {
     "@babel/cli": "^7.4.3",
@@ -42,7 +42,6 @@
     "@babel/preset-typescript": "^7.3.3",
     "@types/history": "^4.7.2",
     "@types/lodash": "^4.14.122",
-    "@types/scriptjs": "^0.0.2",
     "axios": "^0.18.0",
     "babel-eslint": "^10.0.1",
     "babel-loader": "^8.0.4",

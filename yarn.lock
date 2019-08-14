@@ -759,6 +759,11 @@
     lodash "^4.17.10"
     to-fast-properties "^2.0.0"
 
+"@rapiop/scriptjs@^2.5.10":
+  version "2.5.10"
+  resolved "https://registry.yarnpkg.com/@rapiop/scriptjs/-/scriptjs-2.5.10.tgz#d62df3c1b4aec4cd26321945dd553258eb1de03a"
+  integrity sha512-v/IbKOPM30BW8jw8IBRLO6M5ldKVIKtx8pBlWCI+6nph33mM3ZxdXdiYiOkYt0yvlvolWf90JXveXUQnKrYUgA==
+
 "@types/history@^4.7.2":
   version "4.7.2"
   resolved "https://registry.yarnpkg.com/@types/history/-/history-4.7.2.tgz#0e670ea254d559241b6eeb3894f8754991e73220"
@@ -768,11 +773,6 @@
   version "4.14.122"
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.122.tgz#3e31394c38cf1e5949fb54c1192cbc406f152c6c"
   integrity sha512-9IdED8wU93ty8gP06ninox+42SBSJHp2IAamsSYMUY76mshRTeUsid/gtbl8ovnOwy8im41ib4cxTiIYMXGKew==
-
-"@types/scriptjs@^0.0.2":
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/@types/scriptjs/-/scriptjs-0.0.2.tgz#09a2287221a7a341fc6b95b005e4bfb2a5403538"
-  integrity sha1-CaIociGno0H8a5WwBeS/sqVANTg=
 
 "@webassemblyjs/ast@1.7.10":
   version "1.7.10"
@@ -4616,11 +4616,6 @@ schema-utils@^1.0.0:
     ajv "^6.1.0"
     ajv-errors "^1.0.0"
     ajv-keywords "^3.1.0"
-
-scriptjs@^2.5.9:
-  version "2.5.9"
-  resolved "https://registry.yarnpkg.com/scriptjs/-/scriptjs-2.5.9.tgz#343915cd2ec2ed9bfdde2b9875cd28f59394b35f"
-  integrity sha512-qGVDoreyYiP1pkQnbnFAUIS5AjenNwwQBdl7zeos9etl+hYKWahjRTfzAZZYBv5xNHx7vNKCmaLDQZ6Fr2AEXg==
 
 select-hose@^2.0.0:
   version "2.0.0"

@@ -1,4 +1,4 @@
-import $script from 'scriptjs';
+import $script from '@rapiop/scriptjs';
 /**
  * 加载并执行文件
  * @param path {string}
@@ -12,8 +12,15 @@ const fileCacheMap: {
 const get = (src: string) => {
     return new Promise((resolve, reject) => {
         var oReq = new XMLHttpRequest();
-        oReq.addEventListener('load', resolve);
-        oReq.addEventListener('error', reject);
+        oReq.addEventListener('load', e => {
+            resolve();
+        });
+        oReq.addEventListener('abort', e => {
+            reject(e);
+        });
+        oReq.addEventListener('error', e => {
+            reject(e);
+        });
         oReq.open('GET', src);
         oReq.send();
     });
@@ -33,7 +40,13 @@ const cacheScript = (src: string) => {
 
 const loadScript = (src: string) => {
     return new Promise((resolve, reject) => {
-        $script(src, resolve);
+        $script(src, e => {
+            if (e && e.type === 'error') {
+                reject(e);
+            } else {
+                resolve();
+            }
+        });
     });
 };
 export const loadStyle = (href: string) => {
@@ -44,7 +57,7 @@ export const loadStyle = (href: string) => {
     const head = document.head || document.getElementsByTagName('head')[0];
     head.appendChild(el);
 };
-export const loadResources = (files: string[], cacheFirst?: boolean) => {
+export const loadResources = (files: string[], cacheFirst?: boolean, onError?: (e: Error) => void) => {
     if (!files || !files.length) return;
     let scripts: string[] = [],
         styles: string[] = [],
@@ -63,8 +76,8 @@ export const loadResources = (files: string[], cacheFirst?: boolean) => {
                 break;
         }
     });
-    const loadScripts = (i: number) => {
-        loadScript(scripts[i]).then(() => ++i < scripts.length && loadScripts(i));
+    const loadScripts = (i: number): Promise<void> => {
+        return loadScript(scripts[i]).then(() => ++i < scripts.length && loadScripts(i));
     };
     // load all file in cache to speed up async load
     if (cacheFirst) {
@@ -72,9 +85,11 @@ export const loadResources = (files: string[], cacheFirst?: boolean) => {
             const promises = scripts.map(script => cacheScript(script));
             return Promise.all(promises);
         };
-        cacheScripts().then(() => loadScripts(0));
+        cacheScripts()
+            .then(() => loadScripts(0))
+            .catch(onError);
     } else {
-        loadScripts(0);
+        loadScripts(0).catch(onError);
     }
     const loadStyles = () => {
         styles.forEach(style => loadStyle(style));

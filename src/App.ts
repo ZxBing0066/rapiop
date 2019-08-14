@@ -37,6 +37,8 @@ export default class App {
     waiting: boolean = false;
     // 初始化是否完成
     inited: boolean = false;
+    // 错误回调
+    onError: (e: Error) => void;
     hooks: {
         [key: string]: AnyFunction;
     } = {};
@@ -60,6 +62,7 @@ export default class App {
             homeKey = 'home',
             cacheBeforeRun = true,
             getConfig,
+            onError = () => {},
             debug = {},
             hooks = {}
         } = option;
@@ -72,6 +75,8 @@ export default class App {
         this.debugOptions = debug;
         // 无匹配的项目匹配到home
         this.homeKey = homeKey;
+        // 错误时的处理回调
+        this.onError = onError;
         // 注册插件
         plugins.forEach(plugin => {
             this.registerPlugin(plugin);
@@ -107,7 +112,7 @@ export default class App {
                 // 调试frame或iframe中时不做frame加载
                 if (this.debugOptions.devProjectKey !== frameKey && !isInIframe && !this.frameRegistered) {
                     const frameConfig = this.config[frameKey] || {};
-                    loadResources(frameConfig.files || frameConfig.file);
+                    loadResources(frameConfig.files || frameConfig.file, false, this.onError);
                 }
                 this.event.dispatchEvent(EVENT_TYPES.AFTER_INIT);
                 this.inited = true;
@@ -287,7 +292,8 @@ export default class App {
                     }
                     loadResources(
                         projectConfig.files || projectConfig.file,
-                        this.cacheBeforeRun && !this.debugOptions.devProjectKey
+                        this.cacheBeforeRun && !this.debugOptions.devProjectKey,
+                        this.onError
                     );
                     return;
                 }

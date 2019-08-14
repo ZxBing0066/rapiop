@@ -1,14 +1,19 @@
 {
     "home": {
         "href": "/",
-        "file": ["/home.js"]
+        "files": ["/home.js"]
     },
     "demo": {
         "url": "^/demo/",
         "href": "/demo/",
-        "file": ["/demo.js"]
+        "files": ["/demo.js"]
+    },
+    "error": {
+        "url": "^/error/",
+        "href": "/error/",
+        "files": ["/error.js"]
     },
     "frame": {
-        "file": ["/frame.js"]
+        "files": ["/frame.js"]
     }
 }

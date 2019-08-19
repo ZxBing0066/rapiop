@@ -16,7 +16,6 @@ export default class App {
     // 事件器
     public event: Event = new Event();
     // 根节点, for frame mount
-    rootDOM: Element;
     // frame输出的节点, for project mount
     mountDOM: Element;
     // iframe模式的iframe容器
@@ -122,11 +121,6 @@ export default class App {
             });
     };
     initParent = () => {
-        const rootDOM = document.createElement('div');
-        rootDOM.style.height = '100%';
-        document.body.appendChild(rootDOM);
-        this.rootDOM = rootDOM;
-
         // 监听来自iframe的事件同步信息
         window.addEventListener('message', e => {
             if (e.data && e.data.type === MESSAGE_TYPE) {
@@ -186,7 +180,7 @@ export default class App {
         this.registerFrame(...args);
     };
     // 注册ui架子
-    public registerFrame = (frameMount: (rootDOM: Element) => Promise<Element>) => {
+    public registerFrame = (frameMount: () => Promise<Element>) => {
         if (isInIframe) {
             return console.warn("Can't call registerFrame in iframe");
         }
@@ -195,7 +189,7 @@ export default class App {
         }
         this.frameRegistered = true;
         const mountFrame = () => {
-            frameMount(this.rootDOM).then((mountDOM: Element) => {
+            frameMount().then((mountDOM: Element) => {
                 this.mountDOM = mountDOM;
                 this.event.dispatchEvent(EVENT_TYPES.AFTER_FRAME_MOUNT);
             });

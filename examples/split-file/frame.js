@@ -2,7 +2,7 @@ import _ from 'lodash';
 
 const app = window.app;
 
-app.registerFrame(rootDOM => {
+app.registerFrame(() => {
     return new Promise(resolve => {
         const frame = document.createElement('div');
         frame.id = 'frame';
@@ -23,7 +23,7 @@ app.registerFrame(rootDOM => {
         mountDOM.id = 'mount-dom';
         frame.appendChild(header);
         frame.appendChild(mountDOM);
-        rootDOM.appendChild(frame);
+        document.body.appendChild(frame);
         resolve(mountDOM);
     });
 });

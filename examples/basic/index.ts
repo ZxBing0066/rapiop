@@ -24,7 +24,7 @@ const app = new RAPIOP({
 
 console.log(app);
 
-app.registerFrame((rootDOM: Element) => {
+app.registerFrame(() => {
     return new Promise(resolve => {
         const frame = document.createElement('div');
         frame.id = 'frame';
@@ -50,7 +50,7 @@ app.registerFrame((rootDOM: Element) => {
         mountDOM.id = 'mount-dom';
         frame.appendChild(header);
         frame.appendChild(mountDOM);
-        rootDOM.appendChild(frame);
+        document.body.appendChild(frame);
         resolve(mountDOM);
     });
 });

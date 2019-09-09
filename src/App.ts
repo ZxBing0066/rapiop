@@ -1,10 +1,10 @@
-import { createBrowserHistory } from 'history';
 import _ from 'lodash';
 
 import { loadResources } from './lib/load';
 import { Event, EVENT_TYPES } from './lib/event';
 import { getProjectkeyFromPath } from './lib/route';
 import { Config, Option, ProjectOption, RegisterConfig, Plugin, DebugOptions } from './interface';
+import defaultHistory from './lib/history';
 
 const isInIframe = window.self !== window.top;
 
@@ -23,7 +23,11 @@ export default class App {
     // 首页的项目key
     homeKey: string;
     // history对象
-    history: any = createBrowserHistory();
+    history: {
+        push: (url: string) => void;
+        listen: (listener: (url: string) => void) => void;
+        [key: string]: any;
+    };
     // 路由配置, 项目配置等从服务器或其它地方获取的配置
     config: Config;
     // 项目配置, 存储运行时项目注入的配置
@@ -63,7 +67,8 @@ export default class App {
             getConfig,
             onError = () => {},
             debug = {},
-            hooks = {}
+            hooks = {},
+            history = defaultHistory
         } = option;
         if (!getConfig) {
             console.error(`Must provide getConfig when init App`);
@@ -72,6 +77,7 @@ export default class App {
         this.cacheBeforeRun = cacheBeforeRun;
         this.hooks = hooks;
         this.debugOptions = debug;
+        this.history = history;
         // 无匹配的项目匹配到home
         this.homeKey = homeKey;
         // 错误时的处理回调

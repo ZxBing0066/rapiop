@@ -1,5 +1,5 @@
 import axios from 'axios';
-
+import { createBrowserHistory } from 'history';
 import RAPIOP from '@rapiop/rapiop';
 import DependencePlugin from '@rapiop/rapiop/lib/plugins/dependence';
 
@@ -23,6 +23,7 @@ const dependencePlugin = new DependencePlugin({
 
 const app = new RAPIOP({
     getConfig,
+    history: createBrowserHistory(),
     plugins: [dependencePlugin],
     onError: e => {
         console.error(e);

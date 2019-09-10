@@ -34,7 +34,6 @@ const webpackConfig = {
         })
     ],
     devServer: {
-        port: 8666,
         disableHostCheck: true,
         historyApiFallback: true,
         headers: {

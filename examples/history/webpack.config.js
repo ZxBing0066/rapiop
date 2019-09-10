@@ -17,7 +17,7 @@ const webpackConfig = {
     devtool: isDevelopment ? 'inline-source-map' : false,
     resolve: {
         extensions: ['.ts', '.js', '.json'],
-        modules: [path.resolve(__dirname, '.'), 'node_modules']
+        modules: [path.resolve(__dirname, '.'), path.resolve(__dirname, 'node_modules')]
     },
     module: {
         rules: [
@@ -34,7 +34,6 @@ const webpackConfig = {
         })
     ],
     devServer: {
-        port: 8666,
         disableHostCheck: true,
         historyApiFallback: true,
         headers: {

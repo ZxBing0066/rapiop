@@ -4,7 +4,6 @@ import { loadResources } from './lib/load';
 import { Event, EVENT_TYPES } from './lib/event';
 import { getProjectkeyFromPath } from './lib/route';
 import { Config, Option, ProjectOption, RegisterConfig, Plugin, DebugOptions } from './interface';
-import defaultHistory from './lib/history';
 
 const isInIframe = window.self !== window.top;
 
@@ -68,7 +67,7 @@ export default class App {
             onError = () => {},
             debug = {},
             hooks = {},
-            history = defaultHistory
+            history
         } = option;
         if (!getConfig) {
             console.error(`Must provide getConfig when init App`);

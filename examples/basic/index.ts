@@ -1,6 +1,5 @@
-import axios from 'axios';
 import _ from 'lodash';
-
+import { createBrowserHistory } from 'history';
 import RAPIOP from '@rapiop/rapiop';
 
 function getConfig() {
@@ -19,7 +18,8 @@ function getConfig() {
 }
 
 const app = new RAPIOP({
-    getConfig: getConfig
+    getConfig,
+    history: createBrowserHistory()
 });
 
 console.log(app);

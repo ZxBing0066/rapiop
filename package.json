@@ -22,7 +22,9 @@
     "build:lib": "rm -rf lib/ && babel src/ -d lib/ -x \".js\",\".ts\" --source-maps",
     "stats": "NODE_ENV=production webpack --profile --json > stats.json",
     "before-publish": "npm run build && npm run build:lib",
-    "publish:patch": "npm run before-publish && npm version patch && npm publish"
+    "publish:patch": "npm run before-publish && npm version patch && npm publish",
+    "publish:minor": "npm run before-publish && npm version minor && npm publish",
+    "publish:major": "npm run before-publish && npm version major && npm publish"
   },
   "author": "ZxBing0066",
   "license": "MIT",

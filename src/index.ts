@@ -1,4 +1,4 @@
-import Rapiop from './App';
+import Rapiop from './rapiop';
 
 import { EVENT_TYPES } from './lib/event';
 

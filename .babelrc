@@ -3,14 +3,17 @@
         [
             "@babel/preset-env",
             {
-                "targets": "> 0.25%, not dead"
+                "targets": "> 0.25%, not dead",
+                "useBuiltIns": "usage"
             }
         ],
         "@babel/typescript"
     ],
     "plugins": [
+        "@babel/plugin-transform-runtime",
         "@babel/proposal-class-properties",
         "@babel/proposal-object-rest-spread",
-        "lodash"
+        "lodash",
+        ["import", { "libraryName": "tapable", "libraryDirectory": "lib", "camel2DashComponentName": false }, "tapable"]
     ]
 }

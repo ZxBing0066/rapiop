@@ -10,7 +10,7 @@ export function getProjectkeyFromPath(path: string, config: Config = {}) {
         } else if (regexp) {
             return new RegExp(regexp).test(path);
         } else if (prefix) {
-            return path.indexOf(prefix);
+            return path.indexOf(prefix) === 0;
         }
     });
     return routerKey;

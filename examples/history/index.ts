@@ -19,8 +19,6 @@ const createHistory = () => {
     };
 };
 
-const history = createHistory();
-
 function getConfig() {
     return new Promise(resolve =>
         resolve({

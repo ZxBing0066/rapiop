@@ -37,7 +37,7 @@ class Plugin {
             }
         });
     }
-    bind = ({ hooks }: { hooks: Hooks }) => {
+    call = ({ hooks }: { hooks: Hooks }) => {
         hooks.amendInstance.tap('amend loadDependences', (instance, amendInstance) => {
             amendInstance({
                 loadDependences: this.loadDependences
@@ -70,7 +70,9 @@ class Plugin {
             dependences.forEach((dependence: string) => {
                 const dependenceInfo = this.dependenceMap[dependence];
                 if (isShape(dependenceInfo)) {
-                    dependedDependences = dependedDependences.concat(dependenceInfo.dependences);
+                    if (dependenceInfo.dependences) {
+                        dependedDependences = dependedDependences.concat(dependenceInfo.dependences);
+                    }
                     dependenceFiles = dependenceFiles.concat(dependenceInfo.files || dependenceInfo.file);
                 } else {
                     dependenceFiles = dependenceFiles.concat(dependenceInfo);

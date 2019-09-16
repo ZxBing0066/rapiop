@@ -26,15 +26,28 @@ const get = (src: string) => {
     });
 };
 
+const queueMap: { [key: string]: (() => void)[] } = {};
+
 const cacheScript = (src: string) => {
     // start cache
-    fileCacheMap[src] = 0;
+    if (fileCacheMap[src] === 0) {
+        queueMap[src] = queueMap[src] || [];
+        return new Promise(resolve => {
+            queueMap[src].push(resolve);
+        });
+    }
     if (fileCacheMap[src]) {
         return Promise.resolve();
     }
+    fileCacheMap[src] = 0;
     return get(src).then(() => {
         // cache success
         fileCacheMap[src] = 1;
+        if (queueMap[src]) {
+            queueMap[src].forEach(handler => {
+                handler();
+            });
+        }
     });
 };
 

@@ -97,7 +97,7 @@ export default (option: Option) => {
         fallbackProjectKey = 'home',
         // 加载 js 代码时优先缓存文件，然后执行，减少串行等待时间
         cacheBeforeRun = true,
-        //
+        // 获取项目路由配置信息
         getConfig,
         history,
         // 项目挂载节点
@@ -212,7 +212,9 @@ export default (option: Option) => {
     }
 
     // 触发 refresh、mountDOM 提供、项目注册、配置获取完成、hostory 更新时 更新项目
-    history.listen(refresh);
+    if (history) {
+        history.listen(refresh);
+    }
     hooks.refresh.tap('refresh', refresh);
     hooks.afterGetConfig.tap('refresh afterGetConfig', refresh);
     hooks.afterMountDOM.tap('refresh afterMountDOM', refresh);

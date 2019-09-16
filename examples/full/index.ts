@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import { createBrowserHistory } from 'history';
 import RAPIOP from '@rapiop/rapiop';
+import FramePlugin from '@rapiop/rapiop/lib/plugins/frame';
 
 let config: any;
 
@@ -35,7 +36,8 @@ const interceptedUnmount = (mountDOM: Element) => {
 
 const app = RAPIOP({
     getConfig,
-    history
+    history,
+    plugins: [new FramePlugin()]
 });
 
 app.hooks.beforeMount.tap('listen', () => {

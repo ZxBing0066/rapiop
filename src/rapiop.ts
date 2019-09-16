@@ -1,36 +1,9 @@
 import _ from 'lodash';
-import { SyncHook, AsyncParallelHook } from 'tapable';
 
 import { loadResources } from './lib/load';
 import { getProjectkeyFromPath } from './lib/route';
 import { Config, Option, ProjectOption, RegisterConfig, ProjectRegisterConfig, Plugin } from './interface';
-
-// 提供的钩子
-class Hooks {
-    // frame 注册完成后
-    afterFrameRegister = new SyncHook();
-    // mountDOM 提供后
-    afterMountDOM = new SyncHook(['mountDOM']);
-    /**
-     * 项目挂载前
-     * 可通过调用 project.callOrigin 拦截默认行为，传入 true 触发默认行为，传入 false 拦截默认行为
-     */
-    beforeMount = new AsyncParallelHook(['project']);
-    // 项目挂载后
-    afterMount = new SyncHook(['project']);
-    // 项目卸载前
-    beforeUnmount = new AsyncParallelHook(['project']);
-    // 项目卸载后
-    afterUnmount = new SyncHook(['project']);
-    // 项目注册后
-    afterRegister = new SyncHook(['project']);
-    // 初始化完成
-    afterInit = new SyncHook();
-    // 路径变化
-    pathChange = new SyncHook();
-    // 报错
-    error = new SyncHook(['error']);
-}
+import Hooks from './Hooks';
 
 /**
  * 挂载项目
@@ -118,14 +91,18 @@ export default (option: Option) => {
     const hooks = new Hooks();
 
     const {
+        // 插件目录
         plugins = [],
-        frameKey = 'frame',
-        homeKey = 'home',
+        // 无匹配项目时的默认项目
+        fallbackProjectKey = 'home',
+        // 加载 js 代码时优先缓存文件，然后执行，减少串行等待时间
         cacheBeforeRun = true,
+        //
         getConfig,
-        onError = () => {},
-        debugOptions: debugOptions = {},
-        history
+        history,
+        // 项目挂载节点
+        mountDOM: initedMountDOM,
+        onError = () => {}
     } = option;
 
     if (!getConfig) {
@@ -133,25 +110,24 @@ export default (option: Option) => {
         return;
     }
     const registerPlugin = (plugin: Plugin) => {
-        plugin.bind(this);
+        plugin.call({ hooks });
     };
+
     // 注册插件
     plugins.forEach(plugin => {
         registerPlugin(plugin);
     });
 
     let config: Config,
-        inited = false,
         lock = false,
         queuing = false,
-        frameRegistered = false,
         mountedProjectKey: string,
         mountDOM: Element;
     const registerConfig: RegisterConfig = {};
 
     // 更新项目
     const _refresh = async () => {
-        const projectKey = getProjectkeyFromPath(location.pathname, config) || homeKey;
+        const projectKey = getProjectkeyFromPath(location.pathname, config) || fallbackProjectKey;
         // 匹配的项目未改变，不处理
         if (mountedProjectKey === projectKey) {
             console.info(`Project ${projectKey} was mounted`);
@@ -176,11 +152,7 @@ export default (option: Option) => {
                 return;
             }
             // 拉取项目文件
-            loadResources(
-                projectConfig.files || projectConfig.file,
-                cacheBeforeRun && !debugOptions.devProjectKey,
-                onError
-            );
+            loadResources(projectConfig.files || projectConfig.file, cacheBeforeRun, onError);
             return;
         }
         if (
@@ -227,57 +199,56 @@ export default (option: Option) => {
         hooks.afterRegister.call(projectKey);
     };
 
-    const registerFrame = (frameMount: () => Promise<Element>) => {
-        if (frameRegistered) {
-            return console.error(`Cant't call registerFrame multiple times`);
-        }
-        frameRegistered = true;
-        const mountFrame = () => {
-            frameMount().then((_mountDOM: Element) => {
-                mountDOM = _mountDOM;
-                hooks.afterMountDOM.call(_mountDOM);
-            });
-        };
-        hooks.afterFrameRegister.call();
-        if (inited) {
-            mountFrame();
-        } else {
-            hooks.afterInit.tap('mountFrame', mountFrame);
-        }
-    };
+    // hooks tap
+    // 提供 mountDOM
+    hooks.mountDOM.tap('provide mount dom', (dom: Element) => {
+        mountDOM = dom;
+        // trigger afterMountDOM hook
+        hooks.afterMountDOM.call(mountDOM);
+    });
+    // 初始化提供过 mountDOM 时，使用初始化的 mountDOM
+    if (initedMountDOM) {
+        hooks.mountDOM.call(initedMountDOM);
+    }
 
-    // 获取配置信息
-    getConfig()
-        .then(_config => {
-            config = _config;
+    // 触发 refresh、mountDOM 提供、项目注册、配置获取完成、hostory 更新时 更新项目
+    history.listen(refresh);
+    hooks.refresh.tap('refresh', refresh);
+    hooks.afterGetConfig.tap('refresh afterGetConfig', refresh);
+    hooks.afterMountDOM.tap('refresh afterMountDOM', refresh);
+    hooks.afterRegister.tap('refresh afterRegister', refresh);
 
-            // 更新项目
-            hooks.afterMountDOM.tap('refresh', refresh);
-            hooks.afterRegister.tap('refresh', refresh);
-            hooks.pathChange.tap('refresh', refresh);
+    try {
+        (async () => {
+            // 获取配置信息
+            config = await getConfig();
+            hooks.afterGetConfig.call(config);
+        })();
+    } catch (e) {
+        hooks.error.call(e);
+        console.error(e);
+    }
 
-            // 路由变化监听
-            const historyHandler = () => {
-                hooks.pathChange.call();
-            };
-            history.listen(() => historyHandler());
-            // dispatch history change after init
-            historyHandler();
-            // 调试frame或iframe中时不做frame加载
-            if (!frameRegistered) {
-                const frameConfig = config[frameKey] || {};
-                loadResources(frameConfig.files || frameConfig.file, false, onError);
-            }
-            hooks.afterInit.call();
-        })
-        .catch(e => {
-            hooks.error.call(e);
-        });
-
-    return {
+    type RegisterArgs = Parameters<typeof register>;
+    type registerPluginArgs = Parameters<typeof registerPlugin>;
+    interface Instance {
+        register: (...args: RegisterArgs) => void;
+        registerPlugin: (...args: registerPluginArgs) => void;
+        hooks: Hooks;
+        [key: string]: any;
+    }
+    // 返回的实例
+    let instance: Instance = {
         register,
-        registerFrame,
         registerPlugin,
         hooks
     };
+    // 挂载插件提供的实例属性
+    const amendInstance = (amendProps: Instance) =>
+        (instance = {
+            ...instance,
+            ...amendProps
+        });
+    hooks.amendInstance.call(instance, amendInstance);
+    return instance;
 };

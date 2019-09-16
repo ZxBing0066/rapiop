@@ -1,14 +1,16 @@
+export type AnyFunction = (...args: any[]) => any;
+
 // 子项目的配置信息
 export interface ProjectConfig {
     // file path
     files?: string[];
     file?: string[];
-    // link address
-    href?: string;
+    // simply set a prefix to match router
+    prefix?: string;
     // string regexp of match router
-    url?: string;
-    // how to mount project
-    mode?: 'iframe';
+    regexp?: string;
+    // matcher for match router
+    matcher?: AnyFunction;
     // other config
     [other: string]: any;
 }
@@ -20,10 +22,12 @@ export interface Config {
 
 // 实例的初始化配置
 export interface Option {
+    getConfig(): Promise<Config>;
+    history: { listen: (listener: AnyFunction) => {} };
     plugins?: any[];
     frameKey?: string;
     homeKey?: string;
-    getConfig(): Promise<Config>;
+    mountDOM?: Element;
     [propName: string]: any;
 }
 export interface ProjectOption {

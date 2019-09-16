@@ -14,13 +14,14 @@ const config = {
 };
 
 function getConfig() {
-    return new Promise(resolve => resolve(config));
+    return config;
 }
 
+const history = createBrowserHistory();
 const app = new RAPIOP({
     getConfig,
     mountDOM: document.getElementById('mount-dom'),
-    history: createBrowserHistory()
+    history
 });
 
 (() => {
@@ -29,12 +30,12 @@ const app = new RAPIOP({
     _.each(
         {
             home: { href: '/' },
-            ...app.config
+            ...config
         },
         (info, key) => {
             const li = document.createElement('li');
             const a = document.createElement('a');
-            a.onclick = () => app.navigate(info.href);
+            a.onclick = () => history.push(info.href);
             a.innerText = key;
             li.appendChild(a);
             ul.appendChild(li);

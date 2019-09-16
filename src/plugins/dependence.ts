@@ -1,6 +1,8 @@
 import $script from '@rapiop/scriptjs';
 import _ from 'lodash';
 
+import Hooks from '../Hooks';
+
 interface DependenceShape {
     dependences: string[];
     files?: string[];
@@ -35,8 +37,12 @@ class Plugin {
             }
         });
     }
-    bind = (app: any) => {
-        app.loadDependences = this.loadDependences;
+    bind = ({ hooks }: { hooks: Hooks }) => {
+        hooks.amendInstance.tap('amend loadDependences', (instance, amendInstance) => {
+            amendInstance({
+                loadDependences: this.loadDependences
+            });
+        });
     };
     loadDependences = (dependences: string[], callback?: () => void): Promise<void> => {
         function isShape(dependenceInfo: string | string[] | DependenceShape): dependenceInfo is DependenceShape {

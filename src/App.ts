@@ -23,7 +23,6 @@ export default class App {
     homeKey: string;
     // history对象
     history: {
-        push: (url: string) => void;
         listen: (listener: (url: string) => void) => void;
         [key: string]: any;
     };

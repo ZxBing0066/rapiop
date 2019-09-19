@@ -1,5 +1,4 @@
 import $script from '@rapiop/scriptjs';
-import _ from 'lodash';
 
 import Hooks from '../Hooks';
 
@@ -79,7 +78,7 @@ class Plugin {
                 }
             });
             let handler = Promise.resolve();
-            if (!_.isEmpty(dependedDependences)) {
+            if (dependedDependences) {
                 handler = this.loadDependences(dependedDependences);
             }
             return handler.then(() => _load(dependenceFiles));

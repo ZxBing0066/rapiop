@@ -1,9 +1,31 @@
-import _ from 'lodash';
-
 import { loadResources } from './lib/load';
 import { getProjectkeyFromPath } from './lib/route';
-import { Config, Option, ProjectOption, RegisterConfig, ProjectRegisterConfig, Plugin } from './interface';
+import {
+    Config,
+    ProjectConfig,
+    Option,
+    ProjectOption,
+    RegisterConfig,
+    ProjectRegisterConfig,
+    Plugin,
+    OnError
+} from './interface';
 import Hooks from './Hooks';
+
+const createInterceptor = () => {
+    let intercepted = false;
+    let failed = false;
+    // 调用后拦截默认行为
+    const intercept = () => (intercepted = true);
+    // 调用后认定进入项目失败
+    const fail = () => (failed = true);
+    return {
+        intercept,
+        fail,
+        getIntercepted: () => intercepted,
+        getFailed: () => failed
+    };
+};
 
 /**
  * 挂载项目
@@ -18,7 +40,7 @@ const mountProject = async ({
     projectRegisterConfig: ProjectRegisterConfig;
     mountDOM: Element;
     hooks: Hooks;
-}) => {
+}): Promise<boolean> => {
     // mountDOM 为空时, frame 还未加载或初始化未完成，不处理
     if (!mountDOM) {
         console.info(`mountDOM didn't provided`);
@@ -32,23 +54,20 @@ const mountProject = async ({
         return;
     }
 
-    // callOrigin 被拦截调用过后防止重复调用
-    const callOrigin = _.once((needMount = true) => (needMount ? mount(mountDOM) : null));
-    // trigger beforeMount hook
-    await hooks.beforeMount.promise({
+    const interceptor = createInterceptor();
+    await hooks.mount.promise({
         projectKey,
         projectRegisterConfig,
         mountDOM,
-        callOrigin
+        intercept: interceptor.intercept,
+        fail: interceptor.fail
     });
-    // 防止 callOrigin 没被调用
-    await callOrigin();
-
-    // trigger afterMount hook
-    hooks.afterMount.call({
-        projectKey,
-        projectRegisterConfig
-    });
+    const failed = interceptor.getFailed();
+    const intercepted = interceptor.getIntercepted();
+    if (failed) return false;
+    if (!intercepted) {
+        await mount(mountDOM);
+    }
     return true;
 };
 
@@ -65,31 +84,121 @@ const unmountProject = async ({
     projectRegisterConfig: ProjectRegisterConfig;
     mountDOM: Element;
     hooks: Hooks;
-}) => {
+}): Promise<boolean> => {
     const { unmount } = projectRegisterConfig;
     if (!unmount) {
         console.error(`unmount of project: ${projectKey} not exist`);
         return;
     }
-    // callOrigin 被拦截调用过后防止重复调用
-    const callOrigin = _.once((needMount = true) => (needMount ? unmount(mountDOM) : null));
-    // trigger beforeUnmount hook
-    await hooks.beforeUnmount.promise({
+
+    const interceptor = createInterceptor();
+    await hooks.unmount.promise({
         projectKey,
         projectRegisterConfig,
         mountDOM,
-        callOrigin
+        intercept: interceptor.intercept,
+        fail: interceptor.fail
     });
-    // 防止 callOrigin 没被调用
-    await callOrigin();
-    // trigger afterUnmount hook
-    hooks.afterUnmount.call();
+    const failed = interceptor.getFailed();
+    const intercepted = interceptor.getIntercepted();
+    if (failed) return false;
+    if (!intercepted) {
+        await unmount(mountDOM);
+    }
     return true;
+};
+
+/**
+ * 进入项目
+ */
+const enterProject = async ({
+    projectKey,
+    projectRegisterConfig,
+    projectConfig,
+    mountDOM,
+    hooks,
+    onError,
+    cacheBeforeRun
+}: {
+    projectKey: string;
+    projectRegisterConfig: ProjectRegisterConfig;
+    projectConfig: ProjectConfig;
+    mountDOM: Element;
+    hooks: Hooks;
+    onError: OnError;
+    cacheBeforeRun: boolean;
+}): Promise<boolean> => {
+    const enter = async () => {
+        // 无配置项认定为项目未加载
+        if (!projectRegisterConfig) {
+            const files = projectConfig.files || projectConfig.file;
+            if (!files) {
+                console.warn(`project ${projectKey} has no file`);
+                return;
+            }
+            // 拉取项目文件
+            loadResources(files, cacheBeforeRun, onError);
+            return;
+        }
+
+        // 挂载项目
+        return await mountProject({
+            projectKey,
+            projectRegisterConfig,
+            mountDOM,
+            hooks
+        });
+    };
+    const interceptor = createInterceptor();
+    await hooks.enterProject.promise({
+        intercept: interceptor.intercept,
+        fail: interceptor.fail
+    });
+    const failed = interceptor.getFailed();
+    const intercepted = interceptor.getIntercepted();
+    if (failed) return false;
+    if (!intercepted) {
+        return await enter();
+    }
+    return true;
+};
+/**
+ * 退出项目
+ */
+const exitProject = async ({
+    projectKey,
+    projectRegisterConfig,
+    mountDOM,
+    hooks
+}: {
+    projectKey: string;
+    projectRegisterConfig: ProjectRegisterConfig;
+    mountDOM: Element;
+    hooks: Hooks;
+}): Promise<boolean> => {
+    if (projectKey) {
+        const interceptor = createInterceptor();
+        await hooks.exitProject.promise({
+            intercept: interceptor.intercept,
+            fail: interceptor.fail
+        });
+        const failed = interceptor.getFailed();
+        const intercepted = interceptor.getIntercepted();
+        if (failed) return false;
+        if (!intercepted) {
+            return await unmountProject({
+                projectKey,
+                projectRegisterConfig,
+                mountDOM,
+                hooks
+            });
+        }
+        return true;
+    }
 };
 
 export default (option: Option) => {
     const hooks = new Hooks();
-
     const {
         // 插件目录
         plugins = [],
@@ -99,9 +208,11 @@ export default (option: Option) => {
         cacheBeforeRun = true,
         // 获取项目路由配置信息
         getConfig,
+        // 自定义 history 对象
         history,
         // 项目挂载节点
         mountDOM: initedMountDOM,
+        // 错误时的回调
         onError = () => {}
     } = option;
 
@@ -109,14 +220,6 @@ export default (option: Option) => {
         console.error(`Must provide getConfig when init App`);
         return;
     }
-    const registerPlugin = (plugin: Plugin) => {
-        plugin.call({ hooks });
-    };
-
-    // 注册插件
-    plugins.forEach(plugin => {
-        registerPlugin(plugin);
-    });
 
     let config: Config,
         lock = false,
@@ -127,6 +230,10 @@ export default (option: Option) => {
 
     // 更新项目
     const _refresh = async () => {
+        if (!config) {
+            console.info(`Config is not provided`);
+            return;
+        }
         const projectKey = getProjectkeyFromPath(location.pathname, config) || fallbackProjectKey;
         // 匹配的项目未改变，不处理
         if (mountedProjectKey === projectKey) {
@@ -134,34 +241,25 @@ export default (option: Option) => {
             return;
         }
         // 卸载现有项目
-        if (mountedProjectKey) {
-            await unmountProject({
+        if (
+            await exitProject({
                 projectKey: mountedProjectKey,
                 projectRegisterConfig: registerConfig[mountedProjectKey],
                 mountDOM,
                 hooks
-            });
+            })
+        ) {
             mountedProjectKey = null;
         }
-        const projectRegisterConfig = registerConfig[projectKey];
-        // 无配置项认定为项目未加载
-        if (!projectRegisterConfig) {
-            const projectConfig = config[projectKey] || {};
-            if (_.isEmpty(projectConfig.files || projectConfig.file)) {
-                console.warn(`project ${projectKey} has no file`);
-                return;
-            }
-            // 拉取项目文件
-            loadResources(projectConfig.files || projectConfig.file, cacheBeforeRun, onError);
-            return;
-        }
         if (
-            // 挂载项目
-            await mountProject({
+            await enterProject({
                 projectKey,
-                projectRegisterConfig,
+                projectConfig: config[projectKey],
+                projectRegisterConfig: registerConfig[projectKey],
                 mountDOM,
-                hooks
+                hooks,
+                onError,
+                cacheBeforeRun
             })
         ) {
             mountedProjectKey = projectKey;
@@ -220,16 +318,15 @@ export default (option: Option) => {
     hooks.afterMountDOM.tap('refresh afterMountDOM', refresh);
     hooks.afterRegister.tap('refresh afterRegister', refresh);
 
-    try {
-        (async () => {
-            // 获取配置信息
-            config = await getConfig();
-            hooks.afterGetConfig.call(config);
-        })();
-    } catch (e) {
-        hooks.error.call(e);
-        console.error(e);
-    }
+    // 注册插件
+    let pluginDataSlot = {};
+    const amendPluginDataSlot = (data: any) => {
+        pluginDataSlot = Object.assign(pluginDataSlot, data);
+    };
+    const registerPlugin = (plugin: Plugin) => {
+        plugin.call({ hooks, pluginDataSlot, amendPluginDataSlot });
+    };
+    plugins.forEach(plugin => registerPlugin(plugin));
 
     type RegisterArgs = Parameters<typeof register>;
     type registerPluginArgs = Parameters<typeof registerPlugin>;
@@ -246,11 +343,19 @@ export default (option: Option) => {
         hooks
     };
     // 挂载插件提供的实例属性
-    const amendInstance = (amendProps: Instance) =>
-        (instance = {
-            ...instance,
-            ...amendProps
-        });
+    const amendInstance = (amendProps: Instance) => Object.assign(instance, amendProps);
     hooks.amendInstance.call(instance, amendInstance);
+
+    try {
+        (async () => {
+            // 获取配置信息
+            config = await getConfig();
+            hooks.afterGetConfig.call(config, instance);
+        })();
+    } catch (e) {
+        hooks.error.call(e);
+        console.error(e);
+    }
+
     return instance;
 };

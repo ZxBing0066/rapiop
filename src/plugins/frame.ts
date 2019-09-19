@@ -11,9 +11,11 @@ export default class FramePlugin {
     constructor(options: Options = {}) {
         this.options = options;
     }
-    call = ({ hooks }: { hooks: Hooks }) => {
+    call = ({ hooks, pluginDataSlot }: { hooks: Hooks; pluginDataSlot: any }) => {
         const { mountDOMProvideProjectKey = 'frame' } = this.options;
-
+        if (pluginDataSlot.ignoreFrame) {
+            return;
+        }
         let mountDOMProvided = false;
         hooks.afterMountDOM.tap('FramePlugin: mount dom provided', () => {
             mountDOMProvided = true;

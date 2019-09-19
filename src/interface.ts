@@ -1,4 +1,8 @@
+// 任意函数
 export type AnyFunction = (...args: any[]) => any;
+
+// 错误回调
+export type OnError = (err: Error) => void;
 
 // 子项目的配置信息
 export interface ProjectConfig {
@@ -28,6 +32,7 @@ export interface Option {
     frameKey?: string;
     homeKey?: string;
     mountDOM?: Element;
+    onError?: OnError;
     [propName: string]: any;
 }
 export interface ProjectOption {

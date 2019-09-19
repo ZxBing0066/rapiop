@@ -1,4 +1,4 @@
-window.app.loadDependences(['error-dependence'], () => {
+window.app.loadDependences(['error-dependence']).then(() => {
     window.app.register(
         'error-demo',
         mountDOM => {

@@ -3,14 +3,19 @@
         [
             "@babel/preset-env",
             {
-                "targets": "> 0.25%, not dead",
-                "useBuiltIns": "usage"
+                "targets": "> 0.25%, not dead"
             }
         ],
         "@babel/typescript"
     ],
     "plugins": [
-        "@babel/plugin-transform-runtime",
+        [
+            "@babel/plugin-transform-runtime",
+            {
+                "corejs": 3,
+                "proposals": true
+            }
+        ],
         "@babel/proposal-class-properties",
         "@babel/proposal-object-rest-spread",
         "lodash",

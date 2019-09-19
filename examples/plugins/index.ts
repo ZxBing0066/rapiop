@@ -3,6 +3,7 @@ import { createBrowserHistory } from 'history';
 import RAPIOP from '@rapiop/rapiop';
 import FramePlugin from '@rapiop/rapiop/lib/plugins/frame';
 import DependencePlugin from '@rapiop/rapiop/lib/plugins/dependence';
+import IframePlugin from '@rapiop/rapiop/lib/plugins/iframe';
 
 const config = {
     demo: {
@@ -33,11 +34,18 @@ const config = {
         href: '/error-demo/',
         files: ['/error-demo.js']
     },
-    frame: { files: ['/frame.js'] }
+    frame: { files: ['/frame.js'] },
+    'iframe-demo': {
+        prefix: '/iframe-demo/',
+        href: '/iframe-demo/',
+        mode: 'iframe',
+        files: ['/iframe-demo.js']
+    }
 };
 const dependenceMap = {
     React: { files: ['https://unpkg.com/react@16.9.0/umd/react.production.min.js'] },
-    ReactDOM: { files: ['https://unpkg.com/react-dom@16.9.0/umd/react-dom.production.min.js'] },
+    ReactDOM: { files: ['https://unpkg.com/react-dom@16.9.0/umd/react-dom.production.min.js'], dependences: ['React'] },
+    lodash: { files: ['https://unpkg.com/lodash@4.17.15/lodash.min.js'] },
     test: { files: ['/test.js'], dependences: ['React', 'ReactDOM'] },
     'error-dependence': { files: ['https://error.js'] }
 };
@@ -51,6 +59,7 @@ const app = new RAPIOP({
     getConfig,
     history,
     plugins: [
+        new IframePlugin(),
         new FramePlugin(),
         new DependencePlugin({
             getDependenceMap: () => Promise.resolve(dependenceMap),
@@ -65,29 +74,6 @@ const app = new RAPIOP({
         alert(`error`);
     }
 });
-
-(() => {
-    const nav = document.getElementById('nav');
-    const ul = document.createElement('ul');
-    _.each(
-        {
-            home: { href: '/' },
-            ...config
-        },
-        (info, key) => {
-            if (!info.href) {
-                return;
-            }
-            const li = document.createElement('li');
-            const a = document.createElement('a');
-            a.onclick = () => history.push(info.href);
-            a.innerText = key;
-            li.appendChild(a);
-            ul.appendChild(li);
-        }
-    );
-    nav.appendChild(ul);
-})();
 
 app.register(
     'home',
@@ -130,5 +116,8 @@ app.register(
         console.log('demo-2 unmounted');
     }
 );
+
+app.getConfig = () => config;
+app.history = history;
 
 (window as any).app = app;

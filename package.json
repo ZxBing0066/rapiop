@@ -24,7 +24,8 @@
     "before-publish": "npm run build && npm run build:lib",
     "publish:patch": "npm run before-publish && npm version patch && npm publish",
     "publish:minor": "npm run before-publish && npm version minor && npm publish",
-    "publish:major": "npm run before-publish && npm version major && npm publish"
+    "publish:major": "npm run before-publish && npm version major && npm publish",
+    "docs": "npx typedoc --out docs ./src"
   },
   "author": "ZxBing0066",
   "license": "MIT",

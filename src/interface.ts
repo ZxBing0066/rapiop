@@ -29,10 +29,10 @@ export interface Option {
     getConfig(): Promise<Config>;
     history: { listen: (listener: AnyFunction) => {} };
     plugins?: any[];
-    frameKey?: string;
-    homeKey?: string;
+    fallbackProjectKey?: string;
     mountDOM?: Element;
     onError?: OnError;
+    cacheBeforeRun: boolean;
     [propName: string]: any;
 }
 export interface ProjectOption {

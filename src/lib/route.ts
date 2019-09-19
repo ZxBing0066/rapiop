@@ -4,7 +4,7 @@ import { Config } from '../interface';
 export function getProjectkeyFromPath(path: string, config: Config = {}) {
     const keys = Object.keys(config);
     const routerKey = keys.find(key => {
-        const { regexp, matcher, prefix } = config[key] || {};
+        const { regexp, matcher, prefix } = config[key];
         if (matcher) {
             return matcher(path);
         } else if (regexp) {

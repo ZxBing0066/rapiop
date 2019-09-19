@@ -197,7 +197,15 @@ const exitProject = async ({
     }
 };
 
-export default (option: Option) => {
+/**
+ * 创建实例
+ * @param option 实例参数
+ * @return instance 实例属性
+ * @return instance.register 注册一个项目
+ * @return instance.registerPlugin 注册插件
+ * @return hooks 钩子
+ */
+const rapiop = (option: Option) => {
     const hooks = new Hooks();
     const {
         // 插件目录
@@ -359,3 +367,4 @@ export default (option: Option) => {
 
     return instance;
 };
+export default rapiop;

@@ -78,7 +78,7 @@ class Plugin {
                 }
             });
             let handler = Promise.resolve();
-            if (dependedDependences) {
+            if (dependedDependences && dependedDependences.length) {
                 handler = this.loadDependences(dependedDependences);
             }
             return handler.then(() => _load(dependenceFiles));

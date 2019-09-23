@@ -2,6 +2,8 @@ import _ from 'lodash';
 import RAPIOP from '@rapiop/rapiop';
 import { createBrowserHistory } from 'history';
 
+console.log(Object.keys({ a: 1 }), Object.assign({}, { a: 1 }));
+
 const createHistory = () => {
     const listeners: (() => void)[] = [];
     return {
@@ -19,63 +21,63 @@ const createHistory = () => {
     };
 };
 
-function getConfig() {
-    return new Promise(resolve =>
-        resolve({
-            demo: {
-                url: '^/demo/',
-                href: '/demo/'
+const config = {
+    demo: {
+        prefix: '/demo/',
+        href: '/demo/'
+    },
+    'demo-2': {
+        prefix: '/demo-2/',
+        href: '/demo-2/'
+    }
+};
+
+const getConfig = () => config;
+
+(window as any).init = (historyType: 'browser' | 'custom') => {
+    const mountDOM = (() => {
+        const frame = document.createElement('div');
+        frame.id = 'frame';
+        const header = document.createElement('div');
+        header.id = 'header';
+        const ul = document.createElement('ul');
+        _.each(
+            {
+                home: { href: '/' },
+                ...config
             },
-            'demo-2': {
-                url: '^/demo-2/',
-                href: '/demo-2/'
+            (info, key) => {
+                const li = document.createElement('li');
+                const a = document.createElement('a');
+                a.onclick = () => history.push(info.href);
+                a.innerText = key;
+                li.appendChild(a);
+                ul.appendChild(li);
             }
-        })
-    );
-}
-(window as any).init = (historyType: string) => {
+        );
+        header.appendChild(ul);
+        const mountDOM = document.createElement('div');
+        mountDOM.id = 'mount-dom';
+        frame.appendChild(header);
+        frame.appendChild(mountDOM);
+        document.body.appendChild(frame);
+        return mountDOM;
+    })();
+
+    const history = {
+        browser: createBrowserHistory(),
+        custom: createHistory()
+    }[historyType];
+
     const app = new RAPIOP({
         getConfig,
-        history: {
-            browser: createBrowserHistory(),
-            custom: createHistory()
-        }[historyType]
+        history,
+        mountDOM
     });
 
     document.body.removeChild(document.getElementById('action'));
 
     console.log(app);
-
-    app.registerFrame(() => {
-        return new Promise(resolve => {
-            const frame = document.createElement('div');
-            frame.id = 'frame';
-            const header = document.createElement('div');
-            header.id = 'header';
-            const ul = document.createElement('ul');
-            _.each(
-                {
-                    home: { href: '/' },
-                    ...app.config
-                },
-                (info, key) => {
-                    const li = document.createElement('li');
-                    const a = document.createElement('a');
-                    a.onclick = () => app.navigate(info.href);
-                    a.innerText = key;
-                    li.appendChild(a);
-                    ul.appendChild(li);
-                }
-            );
-            header.appendChild(ul);
-            const mountDOM = document.createElement('div');
-            mountDOM.id = 'mount-dom';
-            frame.appendChild(header);
-            frame.appendChild(mountDOM);
-            document.body.appendChild(frame);
-            resolve(mountDOM);
-        });
-    });
 
     app.register(
         'home',

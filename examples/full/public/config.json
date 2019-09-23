@@ -1,0 +1,29 @@
+{
+    "home": {
+        "files": ["/home/index.js"],
+        "href": "/"
+    },
+    "react-demo": {
+        "files": ["/react-demo/index.js"],
+        "prefix": "/react/",
+        "href": "/react/"
+    },
+    "vue-demo": {
+        "files": ["/vue-demo/index.js"],
+        "prefix": "/vue/",
+        "href": "/vue/"
+    },
+    "frame": {
+        "files": ["/frame/index.js"]
+    },
+    "dependenceMap": {
+        "React": { "files": ["https://unpkg.com/react@16.9.0/umd/react.production.min.js"] },
+        "ReactDOM": {
+            "files": ["https://unpkg.com/react-dom@16.9.0/umd/react-dom.production.min.js"],
+            "dependences": ["React"]
+        },
+        "Vue": ["https://cdn.jsdelivr.net/npm/vue/dist/vue.js"],
+        "Backbone": ["https://backbonejs.org/backbone.js"],
+        "lodash": ["https://unpkg.com/lodash@4.17.15/lodash.min.js"]
+    }
+}

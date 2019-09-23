@@ -4,20 +4,19 @@ import RAPIOP from '@rapiop/rapiop';
 
 const config = {
     demo: {
-        url: '^/demo/',
+        prefix: '/demo/',
         href: '/demo/'
     },
     'demo-2': {
-        url: '^/demo-2/',
+        prefix: '/demo-2/',
         href: '/demo-2/'
     }
 };
 
-function getConfig() {
-    return config;
-}
+const getConfig = () => config;
 
 const history = createBrowserHistory();
+
 const app = new RAPIOP({
     getConfig,
     mountDOM: document.getElementById('mount-dom'),

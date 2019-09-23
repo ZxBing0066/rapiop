@@ -5,7 +5,8 @@
             {
                 "targets": "> 0.25%, not dead"
             }
-        ]
+        ],
+        "@babel/typescript"
     ],
     "plugins": [
         [
@@ -18,6 +19,7 @@
             }
         ],
         "@babel/proposal-class-properties",
-        "@babel/proposal-object-rest-spread"
+        "@babel/proposal-object-rest-spread",
+        "lodash"
     ]
 }

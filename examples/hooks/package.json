@@ -1,7 +1,7 @@
 {
-  "name": "rapiop-split-example",
+  "name": "rapiop-basic-example",
   "version": "0.1.0",
-  "description": "Split example for use rapiop",
+  "description": "Basic example for use rapiop",
   "main": "index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -14,7 +14,9 @@
   "author": "ZxBing0066",
   "license": "MIT",
   "dependencies": {
-    "@rapiop/rapiop": "latest"
+    "@rapiop/rapiop": "latest",
+    "axios": "^0.19.0",
+    "history": "^4.9.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.4.3",
@@ -23,11 +25,14 @@
     "@babel/plugin-proposal-object-rest-spread": "^7.3.4",
     "@babel/plugin-transform-runtime": "^7.2.0",
     "@babel/preset-env": "^7.2.0",
+    "@babel/preset-typescript": "^7.3.3",
     "@babel/runtime-corejs2": "^7.2.0",
     "babel-eslint": "^10.0.1",
     "babel-loader": "^8.0.4",
+    "babel-plugin-lodash": "^3.3.4",
     "eslint": "^5.7.0",
     "html-webpack-plugin": "^3.2.0",
+    "typescript": "^3.3.3333",
     "webpack": "^4.23.1",
     "webpack-cli": "^3.1.2",
     "webpack-dev-server": "^3.1.11"

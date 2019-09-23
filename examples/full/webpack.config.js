@@ -36,6 +36,7 @@ const webpackConfig = {
     devServer: {
         disableHostCheck: true,
         historyApiFallback: true,
+        contentBase: path.resolve(__dirname, 'public'),
         headers: {
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept'

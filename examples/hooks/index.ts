@@ -4,23 +4,34 @@ import RAPIOP from '@rapiop/rapiop';
 
 const config = {
     demo: {
-        url: '^/demo/',
+        prefix: '/demo/',
         href: '/demo/'
     },
     'demo-2': {
-        url: '^/demo-2/',
+        prefix: '/demo-2/',
         href: '/demo-2/'
     }
 };
 
-function getConfig() {
-    return new Promise(resolve => resolve(config));
-}
+const getConfig = () => config;
+
+const history = createBrowserHistory();
 
 const app = new RAPIOP({
     getConfig,
     mountDOM: document.getElementById('mount-dom'),
-    history: createBrowserHistory()
+    history,
+    plugins: [
+        {
+            call: ({ hooks }: { hooks: any }) => {
+                _.each(hooks, (hook, key) => {
+                    hook.tap('log', (...args: any[]) => {
+                        console.warn('Hooks triggered: ', key, ...args);
+                    });
+                });
+            }
+        }
+    ]
 });
 
 (() => {
@@ -29,12 +40,12 @@ const app = new RAPIOP({
     _.each(
         {
             home: { href: '/' },
-            ...app.config
+            ...config
         },
         (info, key) => {
             const li = document.createElement('li');
             const a = document.createElement('a');
-            a.onclick = () => app.navigate(info.href);
+            a.onclick = () => history.push(info.href);
             a.innerText = key;
             li.appendChild(a);
             ul.appendChild(li);

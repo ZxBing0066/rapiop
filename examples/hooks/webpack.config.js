@@ -7,25 +7,22 @@ const isDevelopment = env === 'development';
 
 const webpackConfig = {
     entry: {
-        main: './index.js',
-        frame: './frame.js',
-        home: './home.js',
-        demo: './demo.js'
+        main: './index.ts'
     },
     output: {
         path: path.resolve(__dirname, 'build'),
-        filename: '[name].js'
+        filename: '[name].min.js'
     },
     mode: env,
     devtool: isDevelopment ? 'inline-source-map' : false,
     resolve: {
-        extensions: ['.js', '.json'],
+        extensions: ['.ts', '.js', '.json'],
         modules: [path.resolve(__dirname, '.'), 'node_modules']
     },
     module: {
         rules: [
             {
-                test: /\.js$/,
+                test: /\.(ts|js)$/,
                 use: 'babel-loader',
                 exclude: /node_modules/
             }
@@ -33,14 +30,12 @@ const webpackConfig = {
     },
     plugins: [
         new HtmlWebpackPlugin({
-            template: 'index.html',
-            chunks: ['main']
+            template: 'index.html'
         })
     ],
     devServer: {
         disableHostCheck: true,
         historyApiFallback: true,
-        contentBase: path.join(__dirname, 'public'),
         headers: {
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept'

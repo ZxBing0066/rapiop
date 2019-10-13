@@ -3,7 +3,6 @@
 
     APP.loadDependences(['React', 'ReactDOM', 'lodash']).then(() => {
         const _ = window._;
-
         APP.registerFrame(() => {
             return APP.getConfig().then(config => {
                 const frame = document.createElement('div');
@@ -11,10 +10,13 @@
                 const header = document.createElement('div');
                 header.id = 'header';
                 const ul = document.createElement('ul');
+                ul.className = 'nav justify-content-end';
                 _.each(config, (info, key) => {
                     if (!info.href) return;
                     const li = document.createElement('li');
+                    li.className = 'nav-item';
                     const a = document.createElement('a');
+                    a.className = 'nav-link';
                     a.onclick = () => APP.history.push(info.href);
                     a.innerText = key;
                     li.appendChild(a);

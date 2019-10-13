@@ -21,6 +21,7 @@
     "build": "rm -rf build/ && NODE_ENV=production webpack",
     "build:lib": "rm -rf lib/ && babel src/ -d lib/ -x \".js\",\".ts\" --source-maps",
     "stats": "NODE_ENV=production webpack --profile --json > stats.json",
+    "analyzer": "ANALYZER=true NODE_ENV=production webpack",
     "before-publish": "npm run build && npm run build:lib",
     "publish:patch": "npm run before-publish && npm version patch && npm publish",
     "publish:minor": "npm run before-publish && npm version minor && npm publish",
@@ -56,6 +57,7 @@
     "typedoc": "^0.15.0",
     "typescript": "^3.3.3333",
     "webpack": "^4.23.1",
+    "webpack-bundle-analyzer": "^3.5.2",
     "webpack-cli": "^3.1.2",
     "webpack-dev-server": "^3.1.11"
   }

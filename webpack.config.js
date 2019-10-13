@@ -1,8 +1,11 @@
 const path = require('path');
 
 const env = process.env.NODE_ENV;
-
 const isDevelopment = env === 'development';
+
+const analyzer = process.env.ANALYZER;
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+console.log(analyzer);
 
 const webpackConfig = {
     entry: {
@@ -20,6 +23,7 @@ const webpackConfig = {
         extensions: ['.ts', '.js', '.json'],
         modules: [path.resolve(__dirname, '.'), 'node_modules']
     },
+    plugins: [...(analyzer ? [new BundleAnalyzerPlugin()] : [])],
     module: {
         rules: [
             {

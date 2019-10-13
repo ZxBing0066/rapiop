@@ -1,0 +1,23 @@
+{
+  "name": "jquery-spa-example",
+  "version": "0.1.0",
+  "authors": [
+    "Jack Vial <vialjack@gmail.com>"
+  ],
+  "description": "Jquery Single Page Applicaion Example",
+  "main": "s",
+  "keywords": [
+    "Jquery",
+    "SPA",
+    "Sinlge",
+    "Page",
+    "Application"
+  ],
+  "license": "MIT",
+  "homepage": "https://jackvial.github.com",
+  "dependencies": {
+    "bootstrap": "~3.3.5",
+    "jquery": "~2.1.4",
+    "handlebars": "~3.0.3"
+  }
+}

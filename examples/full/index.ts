@@ -6,6 +6,9 @@ import RAPIOP from '@rapiop/rapiop';
 import FramePlugin from '@rapiop/rapiop/lib/plugins/frame';
 import IframePlugin from '@rapiop/rapiop/lib/plugins/iframe';
 import DependencesPlugin from '@rapiop/rapiop/lib/plugins/dependence';
+import { loadStyle } from '@rapiop/rapiop/lib/lib/load';
+
+if(window.top === window) loadStyle('https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css');
 
 const getConfig = (() => {
     let config: any = null;

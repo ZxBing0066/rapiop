@@ -1,6 +1,11 @@
 (() => {
     const APP = window._MY_APP;
-
+    // APP.hooks.exitProject.tap('show loading', () => {
+    //     document.getElementById('loading').style.display = 'block';
+    // });
+    // APP.hooks.enterProject.tap('hide loading', () => {
+    //     document.getElementById('loading').style.display = 'none';
+    // });
     APP.loadDependences(['React', 'ReactDOM', 'lodash']).then(() => {
         const _ = window._;
         APP.registerFrame(() => {
@@ -28,9 +33,13 @@
                 const iframeMountDOM = document.createElement('div');
                 iframeMountDOM.id = 'iframe-mount-dom';
                 iframeMountDOM.style.display = 'none';
+                const loadingDOM = document.createElement('div');
+                loadingDOM.id = 'loading';
+                loadingDOM.style.display = 'none';
                 frame.appendChild(header);
                 frame.appendChild(mountDOM);
                 frame.appendChild(iframeMountDOM);
+                frame.appendChild(loadingDOM);
                 document.body.appendChild(frame);
                 APP.registerIframeMountDOM(iframeMountDOM);
                 return mountDOM;

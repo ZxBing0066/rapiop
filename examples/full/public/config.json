@@ -58,6 +58,22 @@
             "cache": true
         }
     },
+    "todomvc-backbone-es6": {
+        "files": [
+            "/todomvc-backbone-es6/bower_components/todomvc-common/base.css",
+            "/todomvc-backbone-es6/bower_components/jquery/jquery.js",
+            "/todomvc-backbone-es6/bower_components/lodash/dist/lodash.js",
+            "/todomvc-backbone-es6/bower_components/backbone/backbone.js",
+            "/todomvc-backbone-es6/bower_components/backbone.localStorage/backbone.localStorage.js",
+            "/todomvc-backbone-es6/bower_components/es6-module-loader/dist/es6-module-loader.js"
+        ],
+        "prefix": "/todomvc-backbone-es6/",
+        "href": "/todomvc-backbone-es6/",
+        "mode": {
+            "mode": "iframe",
+            "cache": true
+        }
+    },
     "frame": {
         "files": ["/frame/index.js"]
     },

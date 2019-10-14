@@ -8,7 +8,8 @@ import IframePlugin from '@rapiop/rapiop/lib/plugins/iframe';
 import DependencesPlugin from '@rapiop/rapiop/lib/plugins/dependence';
 import { loadStyle } from '@rapiop/rapiop/lib/lib/load';
 
-if(window.top === window) loadStyle('https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css');
+const isInIframe = window.top !== window;
+if (!isInIframe) loadStyle('https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css');
 
 const getConfig = (() => {
     let config: any = null;
@@ -44,10 +45,10 @@ const app = RAPIOP({
     history,
     plugins: [
         new IframePlugin(),
-        new FramePlugin(),
+        ...(isInIframe ? [] : [new FramePlugin()]),
         new DependencesPlugin({
             getDependenceMap: () => {
-                return getConfig().then(config => {
+                return getConfig().then((config: any) => {
                     return config.dependenceMap;
                 });
             }

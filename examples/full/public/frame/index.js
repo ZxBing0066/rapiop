@@ -25,9 +25,14 @@
                 header.appendChild(ul);
                 const mountDOM = document.createElement('div');
                 mountDOM.id = 'mount-dom';
+                const iframeMountDOM = document.createElement('div');
+                iframeMountDOM.id = 'iframe-mount-dom';
+                iframeMountDOM.style.display = 'none';
                 frame.appendChild(header);
                 frame.appendChild(mountDOM);
+                frame.appendChild(iframeMountDOM);
                 document.body.appendChild(frame);
+                APP.registerIframeMountDOM(iframeMountDOM);
                 return mountDOM;
             });
         });

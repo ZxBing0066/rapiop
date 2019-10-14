@@ -8,14 +8,14 @@ const template = `
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="/jquery-spa-example/#home">jQuery SPA</a>
+        <a class="navbar-brand" data-href="/jquery-spa-example/#home">jQuery SPA</a>
     </div>
 
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse navbar-ex1-collapse">
         <ul class="nav navbar-nav">
-            <li><a href="/jquery-spa-example/#about">About</a></li>
-            <li><a href="/jquery-spa-example/#contact">Contact</a></li>
+            <li><a data-href="/jquery-spa-example/#about">About</a></li>
+            <li><a data-href="/jquery-spa-example/#contact">Contact</a></li>
         </ul>
     </div>
     <!-- /.navbar-collapse -->
@@ -53,6 +53,14 @@ window._MY_APP.register(
     mountDOM => {
         mountDOM.innerHTML = template;
 
+        var go = function(url) {
+            history.pushState(null, null, url);
+            $(window).trigger('hashchange');
+            _MY_APP.syncRoute();
+        };
+        $('a[data-href]').on('click', function() {
+            go($(this).data('href'));
+        });
         // Location polyfill for ie, ff < 21.0 and safari
         if (typeof window.location.origin === 'undefined') {
             window.location.origin = window.location.protocol + '//' + window.location.host;

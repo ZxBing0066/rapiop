@@ -23,7 +23,10 @@
         ],
         "prefix": "/react-todo/",
         "href": "/react-todo/",
-        "mode": "iframe"
+        "mode": {
+            "mode": "iframe",
+            "cache": true
+        }
     },
     "angular-todo": {
         "files": [
@@ -34,7 +37,11 @@
             "/angular-todo/main.js"
         ],
         "prefix": "/angular-todo/",
-        "href": "/angular-todo/"
+        "href": "/angular-todo/",
+        "mode": {
+            "mode": "iframe",
+            "cache": true
+        }
     },
     "jquery-spa-example": {
         "files": [
@@ -46,7 +53,10 @@
         ],
         "prefix": "/jquery-spa-example/",
         "href": "/jquery-spa-example/#home",
-        "mode": "iframe"
+        "mode": {
+            "mode": "iframe",
+            "cache": true
+        }
     },
     "frame": {
         "files": ["/frame/index.js"]

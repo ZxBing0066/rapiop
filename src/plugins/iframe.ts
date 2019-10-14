@@ -1,4 +1,5 @@
 import Hooks from '../Hooks';
+import getType from '../lib/getType';
 
 const isInIframe = window.self !== window.top;
 
@@ -23,34 +24,84 @@ const createIframeDOM = () => {
     return iframeDOM;
 };
 
+const RAPIOP_ROUTE_SYNC_EVENT = 'RAPIOP_ROUTE_SYNC';
+
 export default class Iframe {
     options: Options;
     constructor(options: Options) {
         this.options = options;
     }
 
-    call({ hooks, amendPluginDataSlot }: { hooks: Hooks; amendPluginDataSlot: any }) {
+    call({ hooks }: { hooks: Hooks }) {
+        let iframeMountDOM: HTMLElement = null;
         if (isInIframe) {
-            amendPluginDataSlot({ ignoreFrame: true });
+            hooks.amendInstance.tap('amend syncRoute', (instance, amendInstance) => {
+                amendInstance({
+                    syncRoute: () =>
+                        window.top.postMessage(
+                            {
+                                type: RAPIOP_ROUTE_SYNC_EVENT,
+                                href: location.href
+                            },
+                            location.origin
+                        )
+                });
+            });
             const mountDOM = createMountDOM();
             hooks.mountDOM.call(mountDOM);
         } else {
+            window.addEventListener('message', event => {
+                if (event.origin === location.origin && event.data && event.data.type === RAPIOP_ROUTE_SYNC_EVENT) {
+                    history.replaceState(null, null, event.data.href);
+                }
+            });
+            hooks.amendInstance.tap('amend registerIframeMountDOM', (instance, amendInstance) => {
+                amendInstance({
+                    registerIframeMountDOM: (dom: HTMLElement) => (iframeMountDOM = dom)
+                });
+            });
             hooks.afterGetConfig.tap('init iframe', (config, rapiop) => {
                 const keys = Object.keys(config);
                 keys.forEach(projectKey => {
                     const projectConfig = config[projectKey];
                     const { mode } = projectConfig;
-                    if (mode === 'iframe') {
+                    let isIframeMode,
+                        isIframeModeCache = false;
+                    if (getType(mode) === 'Object') {
+                        isIframeMode = mode.mode === 'iframe';
+                        isIframeModeCache = mode.cache;
+                    } else {
+                        isIframeMode = mode === 'iframe';
+                    }
+                    let cachedIframe: HTMLIFrameElement = null;
+                    if (isIframeMode) {
                         let iframeDOM: HTMLIFrameElement = null;
                         rapiop.register(
                             projectKey,
-                            (mountDOM: Element) => {
-                                iframeDOM = createIframeDOM();
-                                mountDOM.appendChild(iframeDOM);
+                            (mountDOM: HTMLElement) => {
+                                if (iframeMountDOM) {
+                                    mountDOM.style.display = 'none';
+                                    iframeMountDOM.style.display = 'block';
+                                }
+                                if (iframeMountDOM && cachedIframe) {
+                                    cachedIframe.style.display = 'block';
+                                } else {
+                                    iframeDOM = createIframeDOM();
+                                    (iframeMountDOM || mountDOM).appendChild(iframeDOM);
+                                }
                             },
-                            (mountDOM: Element) => {
-                                iframeDOM && mountDOM.removeChild(iframeDOM);
-                                iframeDOM = null;
+                            (mountDOM: HTMLElement) => {
+                                if (iframeMountDOM) {
+                                    mountDOM.style.display = 'block';
+                                    iframeMountDOM.style.display = 'none';
+                                }
+                                if (isIframeModeCache && iframeMountDOM) {
+                                    iframeDOM.style.display = 'none';
+                                    cachedIframe = iframeDOM;
+                                } else {
+                                    (iframeMountDOM || mountDOM).removeChild(iframeDOM);
+                                    iframeDOM = null;
+                                }
                             }
                         );
                     }

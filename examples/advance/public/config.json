@@ -3,11 +3,6 @@
         "files": ["/home/index.js"],
         "href": "/"
     },
-    "sandbox": {
-        "files": ["/sandbox/index.js"],
-        "prefix": "/sandbox/",
-        "href": "/sandbox/"
-    },
     "react-demo": {
         "files": ["/react-demo/index.js"],
         "prefix": "/react/",

@@ -5,7 +5,6 @@ const isDevelopment = env === 'development';
 
 const analyzer = process.env.ANALYZER;
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
-console.log(analyzer);
 
 const webpackConfig = {
     entry: {

@@ -72,7 +72,7 @@ class Plugin {
                     if (dependenceInfo.dependences) {
                         dependedDependences = dependedDependences.concat(dependenceInfo.dependences);
                     }
-                    dependenceFiles = dependenceFiles.concat(dependenceInfo.files || dependenceInfo.file);
+                    dependenceFiles = dependenceFiles.concat(dependenceInfo.files);
                 } else {
                     dependenceFiles = dependenceFiles.concat(dependenceInfo);
                 }

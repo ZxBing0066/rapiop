@@ -47,7 +47,7 @@ window._MY_APP.register(
     'todomvc-backbone-es6',
     mountDOM => {
         mountDOM.innerHTML = template;
-        window.System.import('/todomvc-backbone-es6/js/app');
+        window.System.import('js/app');
     },
     mountDOM => {
         mountDOM.innerHTML = null;

@@ -1738,7 +1738,7 @@ core-js-compat@^3.1.1:
     browserslist "^4.6.6"
     semver "^6.3.0"
 
-core-js@^3.2.1:
+core-js@^3, core-js@^3.2.1:
   version "3.2.1"
   resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.2.1.tgz#cd41f38534da6cc59f7db050fe67307de9868b09"
   integrity sha512-Qa5XSVefSVPRxy2XfUC13WbvqkxhkwB3ve+pgCQveNgYzbM/UxZeu1dcOX/xr4UmfUd+muuvsaxilQzCyUurMw==
@@ -5958,3 +5958,10 @@ yargs@13.2.4:
     which-module "^2.0.0"
     y18n "^4.0.0"
     yargs-parser "^13.1.0"
+
+z-sandbox@^0.0.3:
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/z-sandbox/-/z-sandbox-0.0.3.tgz#c5ce97e83bc8b1d209183065631d3a5f385de1cf"
+  integrity sha512-THKUvbf85hoXwSb9ODd0TjAodUcvRwQd4jkUfEUF4sYNzaJj23rX+0TMyPnFVFwsl+P235CPFxcmiiTx1ZqGfw==
+  dependencies:
+    core-js "^3"

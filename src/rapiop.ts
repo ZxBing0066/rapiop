@@ -53,7 +53,7 @@ const mountProject = async ({
         console.error(`mount of project: ${projectKey} not exist`);
         return;
     }
-
+    hooks.beforeMount.call(projectKey);
     const interceptor = createInterceptor();
     await hooks.mount.promise({
         projectKey,
@@ -64,11 +64,11 @@ const mountProject = async ({
     });
     const failed = interceptor.getFailed();
     const intercepted = interceptor.getIntercepted();
-    if (failed) return false;
-    if (!intercepted) {
+    if (!failed && !intercepted) {
         await mount(mountDOM);
     }
-    return true;
+    hooks.afterMount.call(projectKey);
+    return !failed;
 };
 
 /**
@@ -131,7 +131,7 @@ const enterProject = async ({
     const enter = async () => {
         // 无配置项认定为项目未加载
         if (!projectRegisterConfig) {
-            const files = projectConfig.files || projectConfig.file;
+            const files = projectConfig.files;
             if (!files) {
                 console.warn(`project ${projectKey} has no file`);
                 return;

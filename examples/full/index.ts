@@ -6,6 +6,8 @@ import RAPIOP from '@rapiop/rapiop';
 import FramePlugin from '@rapiop/rapiop/lib/plugins/frame';
 import IframePlugin from '@rapiop/rapiop/lib/plugins/iframe';
 import DependencesPlugin from '@rapiop/rapiop/lib/plugins/dependence';
+import PrefetchPlugin from '@rapiop/rapiop/lib/plugins/prefetch';
+import SandboxPlugin from '@rapiop/rapiop/lib/plugins/sandbox';
 import { loadStyle } from '@rapiop/rapiop/lib/lib/load';
 
 const isInIframe = window.top !== window;
@@ -45,14 +47,22 @@ const app = RAPIOP({
     history,
     plugins: [
         new IframePlugin(),
-        ...(isInIframe ? [] : [new FramePlugin()]),
         new DependencesPlugin({
             getDependenceMap: () => {
                 return getConfig().then((config: any) => {
                     return config.dependenceMap;
                 });
             }
-        })
+        }),
+        new SandboxPlugin(),
+        ...(isInIframe
+            ? []
+            : [
+                  new FramePlugin(),
+                  new PrefetchPlugin({
+                      autoPrefetchProjects: ['react-demo', 'vue-demo']
+                  })
+              ])
     ]
 });
 

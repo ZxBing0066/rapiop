@@ -20,7 +20,7 @@ export default class FramePlugin {
         hooks.afterGetConfig.tap('FramePlugin: load frame', config => {
             if (mountDOMProvideProjectKey && !mountDOMProvided) {
                 const frameConfig = config[mountDOMProvideProjectKey] || {};
-                loadResources(frameConfig.files || frameConfig.file, false, e => hooks.error.call(e));
+                loadResources(frameConfig.files, false, e => hooks.error.call(e));
             }
         });
         let frameRegistered = false;

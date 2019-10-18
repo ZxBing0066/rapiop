@@ -8,7 +8,6 @@ export type OnError = (err: Error) => void;
 export interface ProjectConfig {
     // file path
     files?: string[];
-    file?: string[];
     // simply set a prefix to match router
     prefix?: string;
     // string regexp of match router

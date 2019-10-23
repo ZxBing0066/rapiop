@@ -7,7 +7,11 @@
     </head>
     <body>
         <script>
-            window.location.href = window.location.origin + '/?page=' + window.location.pathname;
+            (function() {
+                var location = window.location;
+                location.href =
+                    location.origin + '/?page=' + encodeURIComponent(location.href.replace(location.origin, ''));
+            })();
         </script>
     </body>
 </html>

@@ -69,18 +69,4 @@ const app = RAPIOP({
 app.getConfig = getConfig;
 app.history = history;
 
-if (location.search) {
-    const params: { [any: string]: string } = {};
-    location.search
-        .replace(/^\?/, '')
-        .split('&')
-        .forEach(s => {
-            const v = s.split('=');
-            params[v[0]] = v[1];
-        });
-    if (params.page) {
-        history.replace(params.page);
-    }
-}
-
 (window as any)._MY_APP = app;

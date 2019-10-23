@@ -5,6 +5,23 @@
         <meta http-equiv="X-UA-Compatible" content="ie=edge" />
         <title>Document</title>
         <base href="/" />
+        <script>
+            (function() {
+                if (location.search) {
+                    var params = {};
+                    location.search
+                        .replace(/^\?/, '')
+                        .split('&')
+                        .forEach(s => {
+                            var v = s.split('=');
+                            params[v[0]] = v[1];
+                        });
+                    if (params.page) {
+                        history.replaceState(null, null, decodeURIComponent(params.page));
+                    }
+                }
+            })();
+        </script>
     </head>
     <body></body>
 </html>

@@ -34,6 +34,7 @@ else
     git add -A
     git commit -m "docs: auto update docs"
     git push
+    cd ../
 fi
 
 echo "clean cache path"

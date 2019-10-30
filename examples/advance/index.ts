@@ -60,11 +60,18 @@ const app = RAPIOP({
             : [
                   new FramePlugin(),
                   new PrefetchPlugin({
-                      autoPrefetchProjects: ['react-demo', 'vue-demo']
+                      autoPrefetchProjects: ['vue-demo']
                   })
               ])
     ]
 });
+
+!isInIframe &&
+    _.each(app.hooks, (hook, name) => {
+        hook.tap(`hook ${name} triggered`, (...args: any) => {
+            console.log(`hook ${name} triggered`, ...args);
+        });
+    });
 
 app.getConfig = getConfig;
 app.history = history;

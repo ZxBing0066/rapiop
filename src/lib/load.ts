@@ -6,14 +6,16 @@ import $script from '@rapiop/scriptjs';
  * @returns promise
  */
 const fileCacheMap: {
-    [src: string]: 0 | 1;
+    [src: string]: 0 | XMLHttpRequest;
 } = {};
+
+const queueMap: { [key: string]: ((res: XMLHttpRequest) => void)[] } = {};
 
 const get = (src: string) => {
     return new Promise((resolve, reject) => {
         var oReq = new XMLHttpRequest();
-        oReq.addEventListener('load', e => {
-            resolve();
+        oReq.addEventListener('load', res => {
+            resolve(oReq);
         });
         oReq.addEventListener('abort', e => {
             reject(e);
@@ -21,14 +23,15 @@ const get = (src: string) => {
         oReq.addEventListener('error', e => {
             reject(e);
         });
+        oReq.addEventListener('timeout', e => {
+            reject(e);
+        });
         oReq.open('GET', src);
         oReq.send();
     });
 };
 
-const queueMap: { [key: string]: (() => void)[] } = {};
-
-const cacheScript = (src: string) => {
+export const cacheScript = (src: string) => {
     // start cache
     if (fileCacheMap[src] === 0) {
         queueMap[src] = queueMap[src] || [];
@@ -37,21 +40,23 @@ const cacheScript = (src: string) => {
         });
     }
     if (fileCacheMap[src]) {
-        return Promise.resolve();
+        return Promise.resolve(fileCacheMap[src]);
     }
     fileCacheMap[src] = 0;
-    return get(src).then(() => {
+    return get(src).then((res: XMLHttpRequest) => {
         // cache success
-        fileCacheMap[src] = 1;
+        fileCacheMap[src] = res;
         if (queueMap[src]) {
             queueMap[src].forEach(handler => {
-                handler();
+                handler(res);
             });
+            delete queueMap[src];
         }
+        return res;
     });
 };
 
-const loadScript = (src: string) => {
+export const loadScript = (src: string) => {
     return new Promise((resolve, reject) => {
         $script(src, e => {
             if (e && e.type === 'error') {
@@ -62,6 +67,7 @@ const loadScript = (src: string) => {
         });
     });
 };
+
 export const loadStyle = (href: string) => {
     const el = document.createElement('link');
     el.type = 'text/css';
@@ -70,32 +76,17 @@ export const loadStyle = (href: string) => {
     const head = document.head || document.getElementsByTagName('head')[0];
     head.appendChild(el);
 };
+
 export const loadResources = (files: string[], cacheFirst?: boolean, onError?: (e: Error) => void) => {
     if (!files || !files.length) return;
-    let scripts: string[] = [],
-        styles: string[] = [],
-        unknownFiles: string[] = [];
-    files.forEach(file => {
-        const ext = getExtension(file);
-        switch (ext) {
-            case 'js':
-                scripts.push(file);
-                break;
-            case 'css':
-                styles.push(file);
-                break;
-            default:
-                unknownFiles.push(file);
-                break;
-        }
-    });
+    const { js, css, unknown } = classifyFiles(files);
     const loadScripts = (i: number): Promise<void> => {
-        return loadScript(scripts[i]).then(() => ++i < scripts.length && loadScripts(i));
+        return loadScript(js[i]).then(() => ++i < js.length && loadScripts(i));
     };
     // load all file in cache to speed up async load
     if (cacheFirst) {
         const cacheScripts = () => {
-            const promises = scripts.map(script => cacheScript(script));
+            const promises = js.map(script => cacheScript(script));
             return Promise.all(promises);
         };
         cacheScripts()
@@ -105,11 +96,11 @@ export const loadResources = (files: string[], cacheFirst?: boolean, onError?: (
         loadScripts(0).catch(onError);
     }
     const loadStyles = () => {
-        styles.forEach(style => loadStyle(style));
+        css.forEach(style => loadStyle(style));
     };
     loadStyles();
-    if (unknownFiles.length) {
-        console.error(`load file error with unknown file type`, unknownFiles);
+    if (unknown.length) {
+        console.error(`load file error with unknown file type`, unknown);
     }
 };
 
@@ -122,3 +113,27 @@ function getExtension(path: string = '') {
     var items = path.split('?')[0].split('.');
     return items[items.length - 1].toLowerCase();
 }
+
+export const classifyFiles = (files: string[]) => {
+    const classifyFiles = {
+        js: [] as string[],
+        css: [] as string[],
+        unknown: [] as string[]
+    };
+    const { js, css, unknown } = classifyFiles;
+    files.forEach(file => {
+        const ext = getExtension(file);
+        switch (ext) {
+            case 'js':
+                js.push(file);
+                break;
+            case 'css':
+                css.push(file);
+                break;
+            default:
+                unknown.push(file);
+                break;
+        }
+    });
+    return classifyFiles;
+};

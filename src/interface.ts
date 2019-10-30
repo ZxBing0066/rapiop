@@ -31,7 +31,7 @@ export interface Option {
     fallbackProjectKey?: string;
     mountDOM?: Element;
     onError?: OnError;
-    cacheBeforeRun: boolean;
+    cacheBeforeRun?: boolean;
     [propName: string]: any;
 }
 export interface ProjectOption {

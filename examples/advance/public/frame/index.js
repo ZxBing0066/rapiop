@@ -33,15 +33,38 @@
                 const iframeMountDOM = document.createElement('div');
                 iframeMountDOM.id = 'iframe-mount-dom';
                 iframeMountDOM.style.display = 'none';
-                const loadingDOM = document.createElement('div');
-                loadingDOM.id = 'loading';
-                loadingDOM.style.display = 'none';
+                const loading = document.createElement('div');
+                loading.id = 'loading';
+                loading.innerHTML = `
+  <div class="spinner-border" role="status">
+    <span class="sr-only">Loading...</span>
+  </div>
+`;
                 frame.appendChild(header);
                 frame.appendChild(mountDOM);
                 frame.appendChild(iframeMountDOM);
-                frame.appendChild(loadingDOM);
+                frame.appendChild(loading);
                 document.body.appendChild(frame);
                 APP.registerIframeMountDOM(iframeMountDOM);
+
+                const showLoading = () => {loading.style.display = 'flex'};
+                const hideLoading = () => (loading.style.display = 'none');
+
+                hideLoading();
+
+                APP.hooks.enter.tap('loading', () => {
+                    showLoading();
+                })
+                APP.hooks.beforeMount.tap('loading', () => {
+                    showLoading();
+                });
+                APP.hooks.afterMount.tap('loading', () => {
+                    hideLoading();
+                });
+                APP.hooks.error.tap('loading', () => {
+                    hideLoading();
+                });
+
                 return mountDOM;
             });
         });

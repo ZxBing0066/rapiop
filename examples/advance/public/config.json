@@ -3,6 +3,12 @@
         "files": ["/home/index.js"],
         "href": "/"
     },
+    "sandbox": {
+        "files": ["/sandbox/index.js"],
+        "prefix": "/sandbox/",
+        "href": "/sandbox/",
+        "mode": "sandbox"
+    },
     "react-demo": {
         "files": ["/react-demo/index.js"],
         "prefix": "/react/",
@@ -71,13 +77,10 @@
         ],
         "prefix": "/todomvc-backbone-es6/",
         "href": "/todomvc-backbone-es6/",
-        "mode": {
-            "mode": "iframe",
-            "cache": true
-        }
+        "mode": "iframe"
     },
     "frame": {
-        "files": ["/frame/index.js"]
+        "files": ["/frame/index.js", "/frame/style.css"]
     },
     "dependenceMap": {
         "React": { "files": ["https://unpkg.com/react@16.9.0/umd/react.production.min.js"] },

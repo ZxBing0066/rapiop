@@ -1,5 +1,7 @@
 import { loadResources } from './lib/load';
 import { getProjectkeyFromPath } from './lib/route';
+import { createInterceptor } from './lib/interceptor';
+import { ErrorType } from './lib/error';
 import {
     Config,
     ProjectConfig,
@@ -8,23 +10,54 @@ import {
     RegisterConfig,
     ProjectRegisterConfig,
     Plugin,
-    OnError
+    OnError,
+    AnyFunction
 } from './interface';
-import Hooks from './Hooks';
+import Hooks, { Hook } from './Hooks';
 
-const createInterceptor = () => {
-    let intercepted = false;
-    let failed = false;
-    // 调用后拦截默认行为
-    const intercept = () => (intercepted = true);
-    // 调用后认定进入项目失败
-    const fail = () => (failed = true);
-    return {
-        intercept,
-        fail,
-        getIntercepted: () => intercepted,
-        getFailed: () => failed
+const asyncLifeCyleHelper = async ({
+    hooks,
+    projectKey,
+    projectInfo,
+    defaultHandler,
+    onError,
+    errorType
+}: {
+    hooks: {
+        before?: Hook;
+        main: Hook;
+        after?: Hook;
     };
+    projectKey: string;
+    projectInfo: any;
+    defaultHandler: AnyFunction;
+    onError: OnError;
+    errorType: string;
+}): Promise<boolean> => {
+    hooks.before && hooks.before.call(projectKey);
+    const interceptor = createInterceptor();
+    await hooks.main.promise(projectKey, projectInfo, {
+        intercept: interceptor.intercept,
+        fail: interceptor.fail
+    });
+    let failed = interceptor.getFailed();
+    const intercepted = interceptor.getIntercepted();
+    let handlerResult;
+    if (!failed && !intercepted) {
+        try {
+            handlerResult = await defaultHandler();
+        } catch (e) {
+            failed = e;
+        }
+    }
+    if (failed) {
+        const error = new Error(errorType);
+        console.error(error, ...(failed === true ? [] : [failed]));
+        onError(error);
+        return false;
+    }
+    hooks.after && hooks.after.call(projectKey);
+    return handlerResult === false ? false : true;
 };
 
 /**
@@ -34,14 +67,16 @@ const mountProject = async ({
     projectKey,
     projectRegisterConfig,
     mountDOM,
-    hooks
+    hooks,
+    onError
 }: {
     projectKey: string;
     projectRegisterConfig: ProjectRegisterConfig;
     mountDOM: Element;
     hooks: Hooks;
+    onError: OnError;
 }): Promise<boolean> => {
-    // mountDOM 为空时, frame 还未加载或初始化未完成，不处理
+    // mountDOM 为空时，不处理
     if (!mountDOM) {
         console.info(`mountDOM didn't provided`);
         return;
@@ -53,22 +88,19 @@ const mountProject = async ({
         console.error(`mount of project: ${projectKey} not exist`);
         return;
     }
-    hooks.beforeMount.call(projectKey);
-    const interceptor = createInterceptor();
-    await hooks.mount.promise({
+
+    return await asyncLifeCyleHelper({
+        hooks: {
+            before: hooks.beforeMount,
+            main: hooks.mount,
+            after: hooks.afterMount
+        },
         projectKey,
-        projectRegisterConfig,
-        mountDOM,
-        intercept: interceptor.intercept,
-        fail: interceptor.fail
+        projectInfo: {},
+        defaultHandler: () => mount(mountDOM),
+        onError,
+        errorType: ErrorType.MountFailed
     });
-    const failed = interceptor.getFailed();
-    const intercepted = interceptor.getIntercepted();
-    if (!failed && !intercepted) {
-        await mount(mountDOM);
-    }
-    hooks.afterMount.call(projectKey);
-    return !failed;
 };
 
 /**
@@ -78,12 +110,14 @@ const unmountProject = async ({
     projectKey,
     projectRegisterConfig,
     mountDOM,
-    hooks
+    hooks,
+    onError
 }: {
     projectKey: string;
     projectRegisterConfig: ProjectRegisterConfig;
     mountDOM: Element;
     hooks: Hooks;
+    onError: OnError;
 }): Promise<boolean> => {
     const { unmount } = projectRegisterConfig;
     if (!unmount) {
@@ -91,21 +125,54 @@ const unmountProject = async ({
         return;
     }
 
-    const interceptor = createInterceptor();
-    await hooks.unmount.promise({
+    return await asyncLifeCyleHelper({
+        hooks: {
+            before: hooks.beforeUnmount,
+            main: hooks.unmount,
+            after: hooks.afterUnmount
+        },
         projectKey,
-        projectRegisterConfig,
-        mountDOM,
-        intercept: interceptor.intercept,
-        fail: interceptor.fail
+        projectInfo: {},
+        defaultHandler: () => unmount(mountDOM),
+        onError,
+        errorType: ErrorType.MountFailed
     });
-    const failed = interceptor.getFailed();
-    const intercepted = interceptor.getIntercepted();
-    if (failed) return false;
-    if (!intercepted) {
-        await unmount(mountDOM);
+};
+
+const loadProjectResources = async ({
+    projectKey,
+    files,
+    projectConfig,
+    cacheBeforeRun,
+    hooks,
+    onError
+}: {
+    projectKey: string;
+    files: string[];
+    projectConfig: ProjectConfig;
+    cacheBeforeRun: boolean;
+    hooks: Hooks;
+    onError: OnError;
+}) => {
+    if (!files) {
+        console.warn(`project ${projectKey} has no file`);
+        return false;
     }
-    return true;
+
+    return await asyncLifeCyleHelper({
+        hooks: {
+            main: hooks.loadResources
+        },
+        projectKey,
+        projectInfo: {
+            files,
+            projectConfig,
+            cacheBeforeRun
+        },
+        defaultHandler: () => loadResources(files, cacheBeforeRun, onError),
+        onError,
+        errorType: ErrorType.LoadResourceFailed
+    });
 };
 
 /**
@@ -128,39 +195,38 @@ const enterProject = async ({
     onError: OnError;
     cacheBeforeRun: boolean;
 }): Promise<boolean> => {
-    const enter = async () => {
-        // 无配置项认定为项目未加载
-        if (!projectRegisterConfig) {
-            const files = projectConfig.files;
-            if (!files) {
-                console.warn(`project ${projectKey} has no file`);
-                return;
+    return await asyncLifeCyleHelper({
+        hooks: {
+            main: hooks.enter
+        },
+        projectKey,
+        projectInfo: {},
+        defaultHandler: async () => {
+            // 无配置项认定为项目未加载
+            if (!projectRegisterConfig) {
+                const files = projectConfig.files;
+                loadProjectResources({
+                    projectKey,
+                    files,
+                    projectConfig,
+                    cacheBeforeRun,
+                    hooks,
+                    onError
+                });
+                return false;
             }
-            // 拉取项目文件
-            loadResources(files, cacheBeforeRun, onError);
-            return;
-        }
-
-        // 挂载项目
-        return await mountProject({
-            projectKey,
-            projectRegisterConfig,
-            mountDOM,
-            hooks
-        });
-    };
-    const interceptor = createInterceptor();
-    await hooks.enterProject.promise({
-        intercept: interceptor.intercept,
-        fail: interceptor.fail
+            // 挂载项目
+            return !!(await mountProject({
+                projectKey,
+                projectRegisterConfig,
+                mountDOM,
+                hooks,
+                onError
+            }));
+        },
+        onError,
+        errorType: ErrorType.EnterFailed
     });
-    const failed = interceptor.getFailed();
-    const intercepted = interceptor.getIntercepted();
-    if (failed) return false;
-    if (!intercepted) {
-        return await enter();
-    }
-    return true;
 };
 /**
  * 退出项目
@@ -169,41 +235,43 @@ const exitProject = async ({
     projectKey,
     projectRegisterConfig,
     mountDOM,
-    hooks
+    hooks,
+    onError
 }: {
     projectKey: string;
     projectRegisterConfig: ProjectRegisterConfig;
     mountDOM: Element;
     hooks: Hooks;
+    onError: OnError;
 }): Promise<boolean> => {
     if (projectKey) {
-        const interceptor = createInterceptor();
-        await hooks.exitProject.promise({
-            intercept: interceptor.intercept,
-            fail: interceptor.fail
+        return await asyncLifeCyleHelper({
+            hooks: {
+                main: hooks.exit
+            },
+            projectKey,
+            projectInfo: {},
+            defaultHandler: () =>
+                unmountProject({
+                    projectKey,
+                    projectRegisterConfig,
+                    mountDOM,
+                    hooks,
+                    onError
+                }),
+            onError,
+            errorType: ErrorType.ExitFailed
         });
-        const failed = interceptor.getFailed();
-        const intercepted = interceptor.getIntercepted();
-        if (failed) return false;
-        if (!intercepted) {
-            return await unmountProject({
-                projectKey,
-                projectRegisterConfig,
-                mountDOM,
-                hooks
-            });
-        }
-        return true;
     }
 };
 
 /**
  * 创建实例
  * @param option 实例参数
- * @return instance 实例属性
+ * @return instance 实例
  * @return instance.register 注册一个项目
  * @return instance.registerPlugin 注册插件
- * @return hooks 钩子
+ * @return instance.hooks 钩子
  */
 const rapiop = (option: Option) => {
     const hooks = new Hooks();
@@ -254,7 +322,8 @@ const rapiop = (option: Option) => {
                 projectKey: mountedProjectKey,
                 projectRegisterConfig: registerConfig[mountedProjectKey],
                 mountDOM,
-                hooks
+                hooks,
+                onError
             })
         ) {
             mountedProjectKey = null;
@@ -308,9 +377,12 @@ const rapiop = (option: Option) => {
     // hooks tap
     // 提供 mountDOM
     hooks.mountDOM.tap('provide mount dom', (dom: Element) => {
+        if (mountDOM) return console.error("Can't set mountDOM repeatly");
         mountDOM = dom;
         // trigger afterMountDOM hook
-        hooks.afterMountDOM.call(mountDOM);
+        setTimeout(() => {
+            hooks.afterMountDOM.call(mountDOM);
+        });
     });
     // 初始化提供过 mountDOM 时，使用初始化的 mountDOM
     if (initedMountDOM) {

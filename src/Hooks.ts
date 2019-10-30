@@ -1,37 +1,109 @@
 import { SyncHook, AsyncParallelHook } from 'tapable';
 
+export type Hook = SyncHook | AsyncParallelHook;
+
 // 提供的钩子
 export default class Hooks {
-    // instance
+    /**
+     * 为返回的实例附加属性，只在实例返回前调用一次，一般 for 插件用来注入一些扩展方法
+     * @param instance 当前返回的实例
+     * @param amendInstance 调用为实例附加属性
+     *      @argument instance 附加的属性实例
+     */
     amendInstance = new SyncHook(['instance', 'amendInstance']);
-    // 配置加载完成
+    /**
+     * 配置加载完成调用，最早也会在 amendInstance 后调用
+     * @param config 加载完成的配置
+     * @param instance 返回的实例
+     */
     afterGetConfig = new SyncHook(['config', 'instance']);
-    // mountDOM 注入
-    mountDOM = new SyncHook(['setMountDOM']);
-    // mountDOM 提供后
+    /**
+     * 设置 mountDOM
+     * @param mountDOM 挂载的 DOM
+     */
+    mountDOM = new SyncHook(['mountDOM']);
+    /**
+     * mountDOM 提供后
+     * @param mountDOM 挂载的 DOM
+     */
     afterMountDOM = new SyncHook(['mountDOM']);
-    // 项目注册后
+    /**
+     * Async
+     * 获取项目资源
+     * @param project 项目
+     * @param projectInfo.files 项目的资源文件列表
+     * @param projectInfo.cacheBeforeRun 是否需要先全部缓存
+     * @param projectInfo.projectConfig 项目配置
+     * @param interceptor.intercept 拦截默认行为
+     * @param interceptor.fail 操作失败，触发错误回调，不会调用默认行为
+     */
+    loadResources = new AsyncParallelHook(['project', 'projectInfo', 'interceptor']);
+    /**
+     * 项目注册后
+     * @param project 变化的项目
+     */
     afterRegister = new SyncHook(['project']);
-    enterProject = new AsyncParallelHook(['project']);
-    // 项目挂载前
+    /**
+     * Async
+     * 进入项目
+     * @param project 进入的项目
+     * @param interceptor.intercept 拦截默认行为
+     * @param interceptor.fail 操作失败，触发错误回调，不会调用默认行为，且当前挂载项目不会变更
+     */
+    enter = new AsyncParallelHook(['project', 'projectInfo', 'interceptor']);
+    /**
+     * 项目挂载前
+     * @param project 进入的项目
+     */
     beforeMount = new SyncHook(['project']);
     /**
+     * Async
      * 项目挂载
-     * 可通过调用 project.callOrigin 拦截默认行为，传入 true 触发默认行为，传入 false 拦截默认行为
+     * @param project 挂载的项目
+     * @param projectInfo.projectRegisterConfig 注册信息
+     * @param interceptor.intercept 拦截默认行为
+     * @param interceptor.fail 操作失败，触发错误回调，不会调用默认行为，且当前挂载项目不会变更
      */
-    mount = new AsyncParallelHook(['project']);
-    // 项目挂载后
-    afterMount = new SyncHook(['project']);
-    exitProject = new AsyncParallelHook(['project']);
+    mount = new AsyncParallelHook(['project', 'projectInfo', 'interceptor']);
     /**
-     * 项目卸载
-     * 可通过调用 project.callOrigin 拦截默认行为，传入 true 触发默认行为，传入 false 拦截默认行为
+     * 项目挂载后
+     * @param project 进入的项目
      */
-    unmount = new AsyncParallelHook(['project']);
-    // 项目卸载后
+    afterMount = new SyncHook(['project']);
+    /**
+     * Async
+     * 退出项目
+     * @param project 退出的项目
+     * @param interceptor.intercept 拦截默认行为
+     * @param interceptor.fail 操作失败，触发错误回调，不会调用默认行为，且当前挂载项目不会变更
+     */
+    exit = new AsyncParallelHook(['project', 'projectInfo', 'interceptor']);
+    /**
+     * 项目卸载前
+     * @param project 卸载的项目
+     */
+    beforeUnmount = new SyncHook(['project']);
+    /**
+     * Async
+     * 项目卸载
+     * @param project 卸载的项目
+     * @param projectInfo.projectRegisterConfig 注册信息
+     * @param interceptor.intercept 拦截默认 unmount 行为
+     * @param interceptor.fail 操作失败，触发错误回调，不会调用默认行为，且当前挂载项目不会变更
+     */
+    unmount = new AsyncParallelHook(['project', 'projectInfo', 'interceptor']);
+    /**
+     * 项目卸载后
+     * @param project 卸载的项目
+     */
     afterUnmount = new SyncHook(['project']);
-    // 更新
+    /**
+     * 刷新项目
+     */
     refresh = new SyncHook();
-    // 报错
+    /**
+     * 报错
+     * @param error 错误信息
+     */
     error = new SyncHook(['error']);
 }

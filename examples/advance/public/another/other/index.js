@@ -1,24 +1,24 @@
 (() => {
     const APP = window._MY_ANOTHER_APP;
     APP.register(
-        'home',
+        'other',
         mountDOM => {
             const content = document.createElement('div');
             content.innerHTML = `
-            <p>this is home for anotherApp</p>
+            <p>this is other for anotherApp</p>
 `;
             const button = document.createElement('button');
-            button.innerText = 'click to jump to other project';
+            button.innerText = 'click to jump to home project';
             button.onclick = () => {
-                APP.jumpTo('other');
+                APP.jumpTo('home');
             };
             content.appendChild(button);
             mountDOM.appendChild(content);
-            console.log('home mounted');
+            console.log('other mounted');
         },
         mountDOM => {
             mountDOM.innerHTML = null;
-            console.log('home unmounted');
+            console.log('other unmounted');
         }
     );
 })();

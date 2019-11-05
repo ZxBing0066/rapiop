@@ -5,6 +5,7 @@ export const init = () => {
     <nav id="menu"></nav>
     <div class="row no-gutters" id="wrapper">
         <div class="col-3" id="container-secondary">
+            <div id="another-mount-dom"></div>
         </div>
         <div class="col-9" id="container-main">
             <div id="mount-dom"></div>

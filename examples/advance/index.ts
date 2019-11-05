@@ -60,7 +60,7 @@ if (!isInIframe) {
     });
 
     const anotherApp = initAnotherApp();
-    anotherApp.hooks.mountDOM.call(document.getElementById('container-secondary'));
+    anotherApp.hooks.mountDOM.call(document.getElementById('another-mount-dom'));
     (window as any)._MY_ANOTHER_APP = anotherApp;
 }
 

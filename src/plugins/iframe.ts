@@ -60,7 +60,7 @@ export default class Iframe {
                     registerIframeMountDOM: (dom: HTMLElement) => (iframeMountDOM = dom)
                 });
             });
-            hooks.afterGetConfig.tap('init iframe', (config, rapiop) => {
+            hooks.afterConfig.tap('init iframe', (config, rapiop) => {
                 const keys = Object.keys(config);
                 keys.forEach(projectKey => {
                     const projectConfig = config[projectKey];

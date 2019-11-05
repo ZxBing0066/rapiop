@@ -16,7 +16,7 @@ export default class Hooks {
      * @param config 加载完成的配置
      * @param instance 返回的实例
      */
-    afterGetConfig = new SyncHook(['config', 'instance']);
+    afterConfig = new SyncHook(['config', 'instance']);
     /**
      * 设置 mountDOM
      * @param mountDOM 挂载的 DOM

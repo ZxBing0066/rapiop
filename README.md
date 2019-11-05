@@ -46,22 +46,18 @@
     import RAPIOP from '@rapiop/rapiop';
     import { createBrowserHistory } from 'history';
 
-    // 各个小项目的配置
-    function getConfig() {
-        return {
+    const history = createBrowserHistory();
+
+    const app = RAPIOP({
+        // 产品配置，支持异步
+        config: {
             demo: {
                 url: '^/demo/'
             },
             'demo-2': {
                 url: '^/demo-2/'
             }
-        };
-    }
-    const history = createBrowserHistory();
-
-    const app = RAPIOP({
-        // 产品配置，支持异步
-        getConfig,
+        },
         // 项目的挂载点，异步可使用 FramePlugin
         mountDOM: document.getElementById('mount-dom'),
         // 自定义路由
@@ -69,7 +65,7 @@
     });
     ```
 
-    `getConfig`为必要参数
+    `config`为必要参数
 
 *   注册各个子项目
 

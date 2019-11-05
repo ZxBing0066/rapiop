@@ -23,9 +23,11 @@ export interface Config {
     [key: string]: ProjectConfig;
 }
 
+export type GetConfig = () => Promise<Config>;
+
 // 实例的初始化配置
 export interface Option {
-    getConfig(): Promise<Config>;
+    config: Config | GetConfig;
     history: { listen: (listener: AnyFunction) => {} };
     plugins?: any[];
     fallbackProjectKey?: string;
@@ -53,8 +55,7 @@ export interface RegisterConfig {
 
 // 插件
 export interface Plugin {
-    bind: (app: any) => void;
-    [propName: string]: any;
+    call: (app: any) => void;
 }
 
 // 调试参数

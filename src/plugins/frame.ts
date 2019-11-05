@@ -17,7 +17,7 @@ export default class FramePlugin {
         hooks.afterMountDOM.tap('FramePlugin: mount dom provided', () => {
             mountDOMProvided = true;
         });
-        hooks.afterGetConfig.tap('FramePlugin: load frame', config => {
+        hooks.afterConfig.tap('FramePlugin: load frame', config => {
             if (mountDOMProvideProjectKey && !mountDOMProvided) {
                 const frameConfig = config[mountDOMProvideProjectKey] || {};
                 loadResources(frameConfig.files, false, e => hooks.error.call(e));

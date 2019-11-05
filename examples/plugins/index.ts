@@ -56,7 +56,7 @@ function getConfig() {
 
 const history = createBrowserHistory();
 const app = new RAPIOP({
-    getConfig,
+    config: getConfig,
     history,
     plugins: [
         new IframePlugin(),

@@ -23,7 +23,7 @@ export default class Prefetch {
                 loadResources(config[projectKey].files);
             });
         };
-        hooks.afterGetConfig.tap('get config', (_config: Config) => {
+        hooks.afterConfig.tap('get config', (_config: Config) => {
             config = _config;
         });
         hooks.afterMount.tap('mount first', () => {

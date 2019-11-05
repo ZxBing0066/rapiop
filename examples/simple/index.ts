@@ -18,7 +18,7 @@ const getConfig = () => config;
 const history = createBrowserHistory();
 
 const app = RAPIOP({
-    getConfig,
+    config: getConfig,
     mountDOM: document.getElementById('mount-dom'),
     history
 });

@@ -4,6 +4,7 @@ import { createInterceptor } from './lib/interceptor';
 import { ErrorType } from './lib/error';
 import {
     Config,
+    GetConfig,
     ProjectConfig,
     Option,
     ProjectOption,
@@ -282,8 +283,6 @@ const rapiop = (option: Option) => {
         fallbackProjectKey = 'home',
         // 加载 js 代码时优先缓存文件，然后执行，减少串行等待时间
         cacheBeforeRun = true,
-        // 获取项目路由配置信息
-        getConfig,
         // 自定义 history 对象
         history,
         // 项目挂载节点
@@ -291,13 +290,17 @@ const rapiop = (option: Option) => {
         // 错误时的回调
         onError = () => {}
     } = option;
+    let {
+        // 项目路由配置信息，支持函数和 Promise
+        config
+    } = option;
 
-    if (!getConfig) {
-        console.error(`Must provide getConfig when init App`);
+    if (!config) {
+        console.error(`Must provide config when init App`);
         return;
     }
 
-    let config: Config,
+    let _config: Config,
         lock = false,
         queuing = false,
         mountedProjectKey: string,
@@ -306,11 +309,11 @@ const rapiop = (option: Option) => {
 
     // 更新项目
     const _refresh = async () => {
-        if (!config) {
+        if (!_config) {
             console.info(`Config is not provided`);
             return;
         }
-        const projectKey = getProjectkeyFromPath(location.pathname, config) || fallbackProjectKey;
+        const projectKey = getProjectkeyFromPath(location.pathname, _config) || fallbackProjectKey;
         // 匹配的项目未改变，不处理
         if (mountedProjectKey === projectKey) {
             console.info(`Project ${projectKey} was mounted`);
@@ -331,7 +334,7 @@ const rapiop = (option: Option) => {
         if (
             await enterProject({
                 projectKey,
-                projectConfig: config[projectKey],
+                projectConfig: _config[projectKey],
                 projectRegisterConfig: registerConfig[projectKey],
                 mountDOM,
                 hooks,
@@ -394,17 +397,13 @@ const rapiop = (option: Option) => {
         history.listen(refresh);
     }
     hooks.refresh.tap('refresh', refresh);
-    hooks.afterGetConfig.tap('refresh afterGetConfig', refresh);
+    hooks.afterConfig.tap('refresh afterConfig', refresh);
     hooks.afterMountDOM.tap('refresh afterMountDOM', refresh);
     hooks.afterRegister.tap('refresh afterRegister', refresh);
 
     // 注册插件
-    let pluginDataSlot = {};
-    const amendPluginDataSlot = (data: any) => {
-        pluginDataSlot = Object.assign(pluginDataSlot, data);
-    };
     const registerPlugin = (plugin: Plugin) => {
-        plugin.call({ hooks, pluginDataSlot, amendPluginDataSlot });
+        plugin.call({ hooks });
     };
     plugins.forEach(plugin => registerPlugin(plugin));
 
@@ -428,9 +427,14 @@ const rapiop = (option: Option) => {
 
     try {
         (async () => {
-            // 获取配置信息
-            config = await getConfig();
-            hooks.afterGetConfig.call(config, instance);
+            if (!config) {
+                console.error(`Must provide a config`);
+            } else if (typeof config === 'function') {
+                _config = await (config as GetConfig)();
+            } else {
+                _config = config;
+            }
+            hooks.afterConfig.call(_config, instance);
         })();
     } catch (e) {
         hooks.error.call(e);

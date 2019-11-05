@@ -1,6 +1,6 @@
 {
   "name": "@rapiop/rapiop",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Run all project in one place/project",
   "main": "lib/index.js",
   "repository": {

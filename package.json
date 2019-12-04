@@ -18,7 +18,7 @@
   },
   "homepage": "https://github.com/rapiop/rapiop#readme",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "echo \"Error: no test specified\" && exit 0",
     "start": "NODE_ENV=development webpack-dev-server",
     "build": "rm -rf build/ && NODE_ENV=production webpack",
     "build:lib": "rm -rf lib/ && babel src/ -d lib/ -x \".js\",\".ts\" --source-maps",

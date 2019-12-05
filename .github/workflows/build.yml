@@ -3,20 +3,32 @@ name: Build
 on: [push, pull_request]
 
 jobs:
-  env:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Echo env info
-        run: npm ci
-
   build:
     needs: env
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
+      - name: Checkout code
+        uses: actions/checkout@v1
+      - name: Setup node
+        uses: actions/setup-node@v1
         with:
           node-version: 8
+      - name: Cache node_modules
+        uses: actions/cache@v1
+        with:
+          path: node_modules
+          key: ${{ runner.OS }}-build-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.OS }}-build-${{ env.cache-name }}-
+            ${{ runner.OS }}-build-
+            ${{ runner.OS }}-
+      - name: Install dependencies
+        run: yarn install
+      - name: Echo version
+        run: |
+          node --version,
+          npm --version,
+          babel --version
       - name: Run build
         run: npm run build
       - name: Run build lib

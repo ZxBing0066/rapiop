@@ -4,7 +4,6 @@ on: [push, pull_request]
 
 jobs:
   build:
-    needs: env
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code

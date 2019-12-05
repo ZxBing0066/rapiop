@@ -3,15 +3,21 @@ name: Build
 on: [push, pull_request]
 
 jobs:
-  build:
+  env:
     runs-on: ubuntu-latest
+    steps:
+      - name: Echo env info
+        run: npm ci
 
+  build:
+    needs: env
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
       - uses: actions/setup-node@v1
         with:
           node-version: 8
       - name: Run build
-        run: npm build
+        run: npm run build
       - name: Run build lib
         run: npm run build:lib

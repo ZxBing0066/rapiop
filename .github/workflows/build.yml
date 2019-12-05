@@ -24,9 +24,7 @@ jobs:
       - name: Install dependencies
         run: yarn install
       - name: Echo version
-        run: node --version
-        run: npm --version
-        run: babel --version
+        run: node --version && npm version && npx babel version
       - name: Run build
         run: npm run build
       - name: Run build lib

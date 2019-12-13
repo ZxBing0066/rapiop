@@ -79,7 +79,7 @@ const mountProject = async ({
 }): Promise<boolean> => {
     // mountDOM 为空时，不处理
     if (!mountDOM) {
-        console.info(`mountDOM didn't provided`);
+        // console.info(`mountDOM didn't provided`);
         return;
     }
 
@@ -156,7 +156,7 @@ const loadProjectResources = async ({
     onError: OnError;
 }) => {
     if (!files) {
-        console.warn(`project ${projectKey} has no file`);
+        // console.warn(`project ${projectKey} has no file`);
         return false;
     }
 
@@ -310,13 +310,13 @@ const rapiop = (option: Option) => {
     // 更新项目
     const _refresh = async () => {
         if (!_config) {
-            console.info(`Config is not provided`);
+            // console.info(`Config is not provided`);
             return;
         }
         const projectKey = getProjectkeyFromPath(location.pathname, _config) || fallbackProjectKey;
         // 匹配的项目未改变，不处理
         if (mountedProjectKey === projectKey) {
-            console.info(`Project ${projectKey} was mounted`);
+            // console.info(`Project ${projectKey} was mounted`);
             return;
         }
         // 卸载现有项目

@@ -2,21 +2,13 @@
 
 > A simple micro frontend library
 
-## 背景
+## 介绍
 
-当公司有多个部门、多个团队，而每个团队都开发了自己的一系列系统、工具、网站，随着时间的推移，网站越来越多、碎片化越来越严
-重，这时想要把所有的网站放在一处管理，但是却发现大家的框架、构建、代码完全不一致，如果需要统一改造，那么势必成本过高。
+当公司有数十、甚至上百的前端项目，终于由于难以管理维护，想要统一管理的时候，最先能想到的大概是将所有的项目再统一的平台上全部重构，然而这必然会消耗大量的人力，甚至做到一半后因为各种高优先级任务而不了了之。
 
-这个库的职责就是让所有主流的框架说搭建的网站，无论原来在哪里，只需要做小小的改动，就可以和其它网站融合在一起，避免网站的
-碎片化。
+RAPIOP 出现的初心就是，让任意技术栈的前端项目（目前只支持 SPA 项目，多页应用后续计划支持），只需通过简单的改动（10 分钟 - 30 分钟），便可以无痛的和其它项目共存，大大减少前期的重构人力。在所有项目介入后，便可以方便的对项目进行无痛迭代更新，直至统一化。
 
-## 想法
-
-目前主流框架大体是根据代码来生成 dom 并嵌入页面中，依赖的只是一个固定的 mount dom 元素，利用主流框架的这个一致性，将项目
-的初始化嵌入 dom 的行为抽离出来，便可实现多项目共存。
-
-每个项目主要的关注点：项目对应的路由（可以是任何种类的路由，如基于内存的历史栈），项目对应的文件（可选）,项目的挂载和卸
-载
+最近一两年微前端的概念兴起，RAPIOP 能够很好的承载各种微前端设计。
 
 ## 特点
 
@@ -28,12 +20,21 @@
     -   frame - 方便外层骨架和主逻辑解藕
     -   dependence - 方便统一提供公共依赖，减少项目体积
     -   iframe - 通过 iframe 来彻底隔离某些项目，避免被老项目搞挂
-    -   sandbox（开发中） - 通过简单的 sandbox 实现来隔离全局变量的变更，避免项目间的互相影响
+    -   sandbox - 通过简单的 sandbox 实现来隔离全局变量的变更，避免项目间的互相影响（由于依赖 Proxy 等对兼容性要求较高，对性能有一定影响）
     -   prefetch - 通过 prefetch 来预加载特定项目资源（如常用产品）提升体验
+
+## 能做什么
+
+-   快速的将各种不同技术栈的前端 SPA 项目聚合在一起
+-   可通过 iframe 和 沙箱隔离各项目的代码，避免干扰
+-   方便各项目共享公共文件
+-   方便的拦截项目加载、渲染等各个环节，做统一的权限配置、认证
+-   iframe 也能缓存和同步路由，提升性能、体验
+-   等等
 
 ## 如何使用
 
--   新建一个前端项目作为所有项目的容器
+-   新建一个前端项目作为所有项目的容器，也可选择一个已有项目
 -   项目中安装 rapiop
 
     ```sh
@@ -43,23 +44,24 @@
 -   参考`examples/basic/index.ts`，创建一个新的实例。
 
     ```ts
-    import RAPIOP from '@rapiop/rapiop';
-    import { createBrowserHistory } from 'history';
+    import RAPIOP from "@rapiop/rapiop";
+    import { createBrowserHistory } from "history";
 
+    // 路由可自定义，或通过其它方式实现，非必要
     const history = createBrowserHistory();
 
     const app = RAPIOP({
-        // 产品配置，支持异步
+        // 产品配置，支持函数、异步函数
         config: {
             demo: {
-                url: '^/demo/'
+                prefix: "/demo/"
             },
-            'demo-2': {
-                url: '^/demo-2/'
+            "demo-2": {
+                prefix: "/demo-2/"
             }
         },
-        // 项目的挂载点，异步可使用 FramePlugin
-        mountDOM: document.getElementById('mount-dom'),
+        // 项目的挂载点，异步可使用 FramePlugin，或使用 hooks
+        mountDOM: document.getElementById("mount-dom"),
         // 自定义路由
         history
     });
@@ -71,44 +73,44 @@
 
     ```ts
     app.register(
-        'home',
+        "home",
         (mountDOM: Element) => {
-            const content = document.createElement('div');
-            content.innerText = 'this is my home';
+            const content = document.createElement("div");
+            content.innerText = "this is my home";
             mountDOM.appendChild(content);
-            console.log('home mounted');
+            console.log("home mounted");
         },
         (mountDOM: Element) => {
             mountDOM.innerHTML = null;
-            console.log('home unmounted');
+            console.log("home unmounted");
         }
     );
 
     app.register(
-        'demo',
+        "demo",
         (mountDOM: Element) => {
-            const content = document.createElement('div');
-            content.innerText = 'this is my demo';
+            const content = document.createElement("div");
+            content.innerText = "this is my demo";
             mountDOM.appendChild(content);
-            console.log('demo mounted');
+            console.log("demo mounted");
         },
         (mountDOM: Element) => {
             mountDOM.innerHTML = null;
-            console.log('demo unmounted');
+            console.log("demo unmounted");
         }
     );
 
     app.register(
-        'demo-2',
+        "demo-2",
         (mountDOM: Element) => {
-            const content = document.createElement('div');
-            content.innerText = 'this is my demo-2';
+            const content = document.createElement("div");
+            content.innerText = "this is my demo-2";
             mountDOM.appendChild(content);
-            console.log('demo-2 mounted');
+            console.log("demo-2 mounted");
         },
         (mountDOM: Element) => {
             mountDOM.innerHTML = null;
-            console.log('demo-2 unmounted');
+            console.log("demo-2 unmounted");
         }
     );
     ```

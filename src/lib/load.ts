@@ -84,12 +84,12 @@ export const loadResources = (files: string[], cacheFirst?: boolean, onError?: (
         return loadScript(js[i]).then(() => ++i < js.length && loadScripts(i));
     };
     // load all file in cache to speed up async load
-    if (cacheFirst) {
+    if (cacheFirst && js.length > 1) {
         const cacheScripts = () => {
-            const promises = js.map(script => cacheScript(script));
+            const promises = js.slice(1).map(script => cacheScript(script));
             return Promise.all(promises);
         };
-        cacheScripts()
+        Promise.all([loadScript(js[0]), cacheScripts()])
             .then(() => loadScripts(0))
             .catch(onError);
     } else {

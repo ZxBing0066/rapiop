@@ -10,16 +10,20 @@ import {
     ProjectOption,
     RegisterConfig,
     ProjectRegisterConfig,
+    InnerShared,
     Plugin,
     OnError,
     AnyFunction
 } from './interface';
 import Hooks, { Hook } from './Hooks';
 
+/**
+ * 生命周期函数
+ */
 const asyncLifeCyleHelper = async ({
     hooks,
     projectKey,
-    projectInfo,
+    projectConfig = {},
     defaultHandler,
     onError,
     errorType
@@ -30,14 +34,14 @@ const asyncLifeCyleHelper = async ({
         after?: Hook;
     };
     projectKey: string;
-    projectInfo: any;
+    projectConfig?: ProjectConfig;
     defaultHandler: AnyFunction;
     onError: OnError;
     errorType: string;
 }): Promise<boolean> => {
     hooks.before && hooks.before.call(projectKey);
     const interceptor = createInterceptor();
-    await hooks.main.promise(projectKey, projectInfo, {
+    await hooks.main.promise(projectKey, projectConfig, {
         intercept: interceptor.intercept,
         fail: interceptor.fail
     });
@@ -97,7 +101,6 @@ const mountProject = async ({
             after: hooks.afterMount
         },
         projectKey,
-        projectInfo: {},
         defaultHandler: () => mount(mountDOM),
         onError,
         errorType: ErrorType.MountFailed
@@ -133,28 +136,29 @@ const unmountProject = async ({
             after: hooks.afterUnmount
         },
         projectKey,
-        projectInfo: {},
         defaultHandler: () => unmount(mountDOM),
         onError,
         errorType: ErrorType.MountFailed
     });
 };
 
+/**
+ * 加载项目资源
+ */
 const loadProjectResources = async ({
     projectKey,
-    files,
-    projectConfig,
-    cacheBeforeRun,
+    projectConfig = {},
     hooks,
-    onError
+    onError,
+    loadResources
 }: {
     projectKey: string;
-    files: string[];
     projectConfig: ProjectConfig;
-    cacheBeforeRun: boolean;
     hooks: Hooks;
     onError: OnError;
+    loadResources: AnyFunction;
 }) => {
+    const { files } = projectConfig;
     if (!files) {
         // console.warn(`project ${projectKey} has no file`);
         return false;
@@ -165,12 +169,8 @@ const loadProjectResources = async ({
             main: hooks.loadResources
         },
         projectKey,
-        projectInfo: {
-            files,
-            projectConfig,
-            cacheBeforeRun
-        },
-        defaultHandler: () => loadResources(files, cacheBeforeRun, onError),
+        projectConfig,
+        defaultHandler: () => loadResources(projectConfig, onError),
         onError,
         errorType: ErrorType.LoadResourceFailed
     });
@@ -181,38 +181,36 @@ const loadProjectResources = async ({
  */
 const enterProject = async ({
     projectKey,
+    projectConfig = {},
     projectRegisterConfig,
-    projectConfig,
     mountDOM,
     hooks,
     onError,
-    cacheBeforeRun
+    loadResources
 }: {
     projectKey: string;
-    projectRegisterConfig: ProjectRegisterConfig;
     projectConfig: ProjectConfig;
+    projectRegisterConfig: ProjectRegisterConfig;
     mountDOM: Element;
     hooks: Hooks;
     onError: OnError;
-    cacheBeforeRun: boolean;
+    loadResources: AnyFunction;
 }): Promise<boolean> => {
     return await asyncLifeCyleHelper({
         hooks: {
             main: hooks.enter
         },
         projectKey,
-        projectInfo: {},
+        projectConfig,
         defaultHandler: async () => {
             // 无配置项认定为项目未加载
             if (!projectRegisterConfig) {
-                const files = projectConfig.files;
                 loadProjectResources({
                     projectKey,
-                    files,
                     projectConfig,
-                    cacheBeforeRun,
                     hooks,
-                    onError
+                    onError,
+                    loadResources
                 });
                 return false;
             }
@@ -229,6 +227,7 @@ const enterProject = async ({
         errorType: ErrorType.EnterFailed
     });
 };
+
 /**
  * 退出项目
  */
@@ -251,7 +250,6 @@ const exitProject = async ({
                 main: hooks.exit
             },
             projectKey,
-            projectInfo: {},
             defaultHandler: () =>
                 unmountProject({
                     projectKey,
@@ -331,6 +329,7 @@ const rapiop = (option: Option) => {
         ) {
             mountedProjectKey = null;
         }
+        // 进入当前项目
         if (
             await enterProject({
                 projectKey,
@@ -339,7 +338,7 @@ const rapiop = (option: Option) => {
                 mountDOM,
                 hooks,
                 onError,
-                cacheBeforeRun
+                loadResources: (projectInfo, onError) => innerShared.loadResources(projectInfo, onError)
             })
         ) {
             mountedProjectKey = projectKey;
@@ -401,24 +400,30 @@ const rapiop = (option: Option) => {
     hooks.afterMountDOM.tap('refresh afterMountDOM', refresh);
     hooks.afterRegister.tap('refresh afterRegister', refresh);
 
+    const innerShared: InnerShared = {
+        loadResources: (projectConfig: ProjectConfig, onError: OnError) => {
+            const { files } = projectConfig;
+            return loadResources(files, cacheBeforeRun, onError);
+        }
+    };
+
     // 注册插件
     const registerPlugin = (plugin: Plugin) => {
-        plugin.call({ hooks });
+        plugin.call({ hooks, innerShared });
     };
     plugins.forEach(plugin => registerPlugin(plugin));
 
     type RegisterArgs = Parameters<typeof register>;
-    type registerPluginArgs = Parameters<typeof registerPlugin>;
     interface Instance {
         register: (...args: RegisterArgs) => void;
-        registerPlugin: (...args: registerPluginArgs) => void;
         hooks: Hooks;
         [key: string]: any;
     }
+    const amendInnerShared = (amendProps: any) => Object.assign(innerShared, amendProps);
+    hooks.amendInnerShared.call(innerShared, amendInnerShared);
     // 返回的实例
     let instance: Instance = {
         register,
-        registerPlugin,
         hooks
     };
     // 挂载插件提供的实例属性
@@ -443,4 +448,5 @@ const rapiop = (option: Option) => {
 
     return instance;
 };
+
 export default rapiop;

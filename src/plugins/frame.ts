@@ -1,9 +1,10 @@
 import Hooks from '../Hooks';
-import { loadResources } from '../lib/load';
+import { OnError, InnerShared } from '../interface';
 
 interface Options {
     // 提供 mountDOM 的项目 key，为 null 时视为无单独项目提供，需主动调用 registerFrame
     mountDOMProvideProjectKey?: string;
+    onError?: OnError;
 }
 
 export default class FramePlugin {
@@ -11,8 +12,8 @@ export default class FramePlugin {
     constructor(options: Options = {}) {
         this.options = options;
     }
-    call = ({ hooks }: { hooks: Hooks }) => {
-        const { mountDOMProvideProjectKey = 'frame' } = this.options;
+    call = ({ hooks, innerShared }: { hooks: Hooks; innerShared: InnerShared }) => {
+        const { mountDOMProvideProjectKey = 'frame', onError = (e: Error) => console.error(e) } = this.options;
         let mountDOMProvided = false;
         hooks.afterMountDOM.tap('FramePlugin: mount dom provided', () => {
             mountDOMProvided = true;
@@ -20,7 +21,7 @@ export default class FramePlugin {
         hooks.afterConfig.tap('FramePlugin: load frame', config => {
             if (mountDOMProvideProjectKey && !mountDOMProvided) {
                 const frameConfig = config[mountDOMProvideProjectKey] || {};
-                loadResources(frameConfig.files, false, e => hooks.error.call(e));
+                innerShared.loadResources(frameConfig, onError);
             }
         });
         let frameRegistered = false;

@@ -1,12 +1,8 @@
-import $script from '@rapiop/scriptjs';
-
 import Hooks from '../Hooks';
-
-interface DependenceShape {
-    dependences: string[];
-    files?: string[];
-    file?: string[];
-}
+import { scriptLoad, DependenceShape, DependenceMap as FormattedDependenceMap } from '../lib/scriptLoad';
+import { isObject, isArray } from '../util';
+import { loadResources } from '../lib/load';
+import { ProjectConfig, OnError } from '../interface';
 
 interface DependenceMap {
     [key: string]: string | string[] | DependenceShape;
@@ -15,20 +11,41 @@ interface DependenceMap {
 interface Option {
     getDependenceMap: () => Promise<DependenceMap>;
     baseUrl: string;
+    cacheBeforeRun: boolean;
     onError: (e: Error) => Promise<any>;
 }
 
+function isShape(dependenceInfo: string | string[] | DependenceShape): dependenceInfo is DependenceShape {
+    return isObject(dependenceInfo);
+}
+
 class Plugin {
-    dependenceMap: DependenceMap;
-    baseUrl: string;
-    onError: (e: Error) => Promise<any>;
+    dependenceMap: FormattedDependenceMap;
+    option: Option;
     queue: (() => {})[] = [];
     constructor(option: Option) {
-        const { getDependenceMap, baseUrl = '', onError = (e: Error) => Promise.reject(e) } = option;
-        this.baseUrl = baseUrl;
-        this.onError = onError;
+        const { getDependenceMap, baseUrl = '' } = option;
+        this.option = option;
         getDependenceMap().then((map = {}) => {
-            this.dependenceMap = map;
+            const dependenceMap: FormattedDependenceMap = {};
+            for (let dependence in map) {
+                const dependenceInfo = map[dependence] || [];
+                let files: string[],
+                    dependences: string[] = [];
+                if (isShape(dependenceInfo)) {
+                    files = dependenceInfo.files;
+                    dependences = dependenceInfo.dependences;
+                } else if (isArray(dependenceInfo)) {
+                    files = dependenceInfo as string[];
+                } else {
+                    files = [dependenceInfo as string];
+                }
+                dependenceMap[dependence] = {
+                    files: files.map(file => (file.match(/^http:\/\//) ? file : `${baseUrl}${file}`)),
+                    dependences
+                };
+            }
+            this.dependenceMap = dependenceMap;
             if (this.queue.length) {
                 this.queue.forEach(load => {
                     load();
@@ -37,57 +54,29 @@ class Plugin {
         });
     }
     call = ({ hooks }: { hooks: Hooks }) => {
+        const { cacheBeforeRun = true } = this.option;
         hooks.amendInstance.tap('amend loadDependences', (instance, amendInstance) => {
             amendInstance({
                 loadDependences: this.loadDependences
             });
         });
-    };
-    loadDependences = (dependences: string[], callback?: () => void): Promise<void> => {
-        function isShape(dependenceInfo: string | string[] | DependenceShape): dependenceInfo is DependenceShape {
-            return Object.prototype.toString.call(dependenceInfo) === '[object Object]';
-        }
-        const load = () => {
-            const _load = (dependenceFiles: string[]): Promise<void> => {
-                const getFilePath = (file: string) => this.baseUrl + file;
-
-                dependenceFiles = dependenceFiles.map((file: string) => getFilePath(file));
-
-                return new Promise((resolve, reject) => {
-                    $script(dependenceFiles, e => {
-                        if (e && e.type === 'error') {
-                            reject(e);
-                        } else {
-                            resolve();
-                        }
-                    });
-                });
-            };
-
-            let dependedDependences: string[] = [];
-            let dependenceFiles: string[] = [];
-            dependences.forEach((dependence: string) => {
-                const dependenceInfo = this.dependenceMap[dependence];
-                if (isShape(dependenceInfo)) {
-                    if (dependenceInfo.dependences) {
-                        dependedDependences = dependedDependences.concat(dependenceInfo.dependences);
-                    }
-                    dependenceFiles = dependenceFiles.concat(dependenceInfo.files);
-                } else {
-                    dependenceFiles = dependenceFiles.concat(dependenceInfo);
+        hooks.amendInnerShared.tap('amendInnerShared', (innerShared, amendInnerShared) => {
+            amendInnerShared({
+                loadResources: (projectConfig: ProjectConfig, onError: OnError) => {
+                    const { files, dependences } = projectConfig;
+                    return loadResources(files, cacheBeforeRun, onError, dependences, this.dependenceMap);
                 }
             });
-            let handler = Promise.resolve();
-            if (dependedDependences && dependedDependences.length) {
-                handler = this.loadDependences(dependedDependences);
-            }
-            return handler.then(() => _load(dependenceFiles));
-        };
+        });
+    };
+    loadDependences = (dependences: string[], callback?: () => void): Promise<void> => {
+        const { cacheBeforeRun = true, onError = (e: Error) => Promise.reject(e) } = this.option;
+        const load = () => scriptLoad([], cacheBeforeRun, onError, dependences, this.dependenceMap);
         return new Promise((resolve, reject) => {
             const _callback = (e?: Error) => {
                 callback && callback();
                 if (e) {
-                    this.onError(e);
+                    onError(e);
                     reject(e);
                 } else {
                     resolve();

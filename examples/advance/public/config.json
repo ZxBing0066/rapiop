@@ -12,12 +12,14 @@
     "react-demo": {
         "files": ["/react-demo/index.js"],
         "prefix": "/react/",
-        "href": "/react/"
+        "href": "/react/",
+        "dependences": ["React", "ReactDOM"]
     },
     "vue-demo": {
         "files": ["/vue-demo/index.js"],
         "prefix": "/vue/",
-        "href": "/vue/"
+        "href": "/vue/",
+        "depedences": ["Vue"]
     },
     "react-todo": {
         "files": [

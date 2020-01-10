@@ -12,6 +12,10 @@ export default class Hooks {
      */
     amendInstance = new SyncHook(['instance', 'amendInstance']);
     /**
+     * 给插件、库内部共享提供属性
+     */
+    amendInnerShared = new SyncHook(['innerShared', 'amendInnerShared']);
+    /**
      * 配置加载完成调用，最早也会在 amendInstance 后调用
      * @param config 加载完成的配置
      * @param instance 返回的实例

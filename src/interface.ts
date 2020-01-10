@@ -62,3 +62,8 @@ export interface Plugin {
 export interface DebugOptions {
     devProjectKey?: string;
 }
+
+// 内部共享实例
+export interface InnerShared {
+    loadResources: (projectConfig: ProjectConfig, onError: OnError) => void;
+}

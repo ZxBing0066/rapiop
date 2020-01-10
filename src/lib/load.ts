@@ -1,72 +1,6 @@
-import $script from '@rapiop/scriptjs';
-/**
- * 加载并执行文件
- * @param path {string}
- * @param params {Object}
- * @returns promise
- */
-const fileCacheMap: {
-    [src: string]: 0 | XMLHttpRequest;
-} = {};
+import { scriptLoad, DependenceMap } from './scriptLoad';
 
-const queueMap: { [key: string]: ((res: XMLHttpRequest) => void)[] } = {};
-
-const get = (src: string) => {
-    return new Promise((resolve, reject) => {
-        var oReq = new XMLHttpRequest();
-        oReq.addEventListener('load', res => {
-            resolve(oReq);
-        });
-        oReq.addEventListener('abort', e => {
-            reject(e);
-        });
-        oReq.addEventListener('error', e => {
-            reject(e);
-        });
-        oReq.addEventListener('timeout', e => {
-            reject(e);
-        });
-        oReq.open('GET', src);
-        oReq.send();
-    });
-};
-
-export const cacheScript = (src: string) => {
-    // start cache
-    if (fileCacheMap[src] === 0) {
-        queueMap[src] = queueMap[src] || [];
-        return new Promise(resolve => {
-            queueMap[src].push(resolve);
-        });
-    }
-    if (fileCacheMap[src]) {
-        return Promise.resolve(fileCacheMap[src]);
-    }
-    fileCacheMap[src] = 0;
-    return get(src).then((res: XMLHttpRequest) => {
-        // cache success
-        fileCacheMap[src] = res;
-        if (queueMap[src]) {
-            queueMap[src].forEach(handler => {
-                handler(res);
-            });
-            delete queueMap[src];
-        }
-        return res;
-    });
-};
-
-export const loadScript = (src: string) => {
-    return new Promise((resolve, reject) => {
-        $script(src, e => {
-            if (e && e.type === 'error') {
-                reject(e);
-            } else {
-                resolve();
-            }
-        });
-    });
-};
+export { cacheScript, cacheScripts, loadScript, loadScripts } from './scriptLoad';
 
 export const loadStyle = (href: string) => {
     const el = document.createElement('link');
@@ -77,28 +11,22 @@ export const loadStyle = (href: string) => {
     head.appendChild(el);
 };
 
-export const loadResources = (files: string[], cacheFirst?: boolean, onError?: (e: Error) => void) => {
+export const loadStyles = (css: string[]) => {
+    css.forEach(style => loadStyle(style));
+};
+
+export const loadResources = (
+    files: string[],
+    cacheFirst?: boolean,
+    onError?: (e: Error) => void,
+    dependences?: string[],
+    dependenceMap?: DependenceMap
+) => {
     if (!files || !files.length) return;
     const { js, css, unknown } = classifyFiles(files);
-    const loadScripts = (i: number): Promise<void> => {
-        return loadScript(js[i]).then(() => ++i < js.length && loadScripts(i));
-    };
-    // load all file in cache to speed up async load
-    if (cacheFirst && js.length > 1) {
-        const cacheScripts = () => {
-            const promises = js.slice(1).map(script => cacheScript(script));
-            return Promise.all(promises);
-        };
-        Promise.all([loadScript(js[0]), cacheScripts()])
-            .then(() => loadScripts(0))
-            .catch(onError);
-    } else {
-        loadScripts(0).catch(onError);
-    }
-    const loadStyles = () => {
-        css.forEach(style => loadStyle(style));
-    };
-    loadStyles();
+
+    scriptLoad(js, cacheFirst, onError, dependences, dependenceMap);
+    loadStyles(css);
     if (unknown.length) {
         console.error(`load file error with unknown file type`, unknown);
     }

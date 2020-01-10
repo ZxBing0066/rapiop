@@ -1,9 +1,9 @@
 import Hooks from '../Hooks';
-import { Config } from '../interface';
-import { loadResources } from '../lib/load';
+import { Config, InnerShared, OnError } from '../interface';
 
 type Options = {
     autoPrefetchProjects: string[];
+    onError?: OnError;
 };
 
 export default class Prefetch {
@@ -11,16 +11,16 @@ export default class Prefetch {
         this.options = options;
     }
     options: Options;
-    call({ hooks }: { hooks: Hooks }) {
+    call({ hooks, innerShared }: { hooks: Hooks; innerShared: InnerShared }) {
         const { requestIdleCallback } = window as any;
         if (!requestIdleCallback) return;
 
-        const { autoPrefetchProjects } = this.options;
+        const { autoPrefetchProjects, onError = (e: Error) => console.error(e) } = this.options;
         let firstMounted = true,
             config: Config;
         const prefetch = (projectKey: string) => {
             requestIdleCallback(() => {
-                loadResources(config[projectKey].files);
+                innerShared.loadResources(config[projectKey], onError);
             });
         };
         hooks.afterConfig.tap('get config', (_config: Config) => {

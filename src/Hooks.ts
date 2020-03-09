@@ -12,6 +12,13 @@ export default class Hooks {
      */
     amendInstance = new SyncHook(['instance', 'amendInstance']);
     /**
+     * 为返回的实例附加属性，只在实例返回前调用一次，一般 for 插件用来注入一些自定义的 hooks
+     * @param hooks 当前返回的 hooks
+     * @param amendHooks 调用为现有 hooks 添加自定义 hooks
+     *      @argument hooks 附加的自定义 hooks
+     */
+    amendHooks = new SyncHook(['hooks', 'amendHooks']);
+    /**
      * 给插件、库内部共享提供属性
      */
     amendInnerShared = new SyncHook(['innerShared', 'amendInnerShared']);

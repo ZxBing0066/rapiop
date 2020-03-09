@@ -427,8 +427,10 @@ const rapiop = (option: Option) => {
         hooks
     };
     // 挂载插件提供的实例属性
-    const amendInstance = (amendProps: Instance) => Object.assign(instance, amendProps);
+    const amendInstance = (amendedProps: Instance) => Object.assign(instance, amendedProps);
     hooks.amendInstance.call(instance, amendInstance);
+    const amendHooks = (amendedHooks: { name: Hook }) => Object.assign(hooks, amendedHooks);
+    hooks.amendHooks.call(hooks, amendHooks);
 
     try {
         (async () => {

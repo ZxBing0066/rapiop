@@ -95,9 +95,15 @@ export const scriptLoad = (
         const dependenceQueue: Promise<any>[] = [];
         dependences &&
             dependences.forEach(dependence => {
+                if (!dependence) return;
                 let files: string[], dependences: string[];
-                const dependenceInfo = dependencesMap[dependence];
-                if (!dependenceInfo) return;
+                let dependenceInfo = dependencesMap[dependence];
+                if (!dependenceInfo) {
+                    dependenceInfo = {
+                        files: [dependence],
+                        dependences: []
+                    };
+                }
                 files = dependenceInfo.files;
                 dependences = dependenceInfo.dependences;
                 dependenceQueue.push(load(files, dependences));

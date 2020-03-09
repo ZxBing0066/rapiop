@@ -74,11 +74,11 @@ class Plugin {
         const load = () => scriptLoad([], cacheBeforeRun, onError, dependences, this.dependenceMap);
         return new Promise((resolve, reject) => {
             const _callback = (e?: Error) => {
-                callback && callback();
                 if (e) {
                     onError(e);
                     reject(e);
                 } else {
+                    callback && callback();
                     resolve();
                 }
             };

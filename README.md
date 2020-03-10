@@ -44,13 +44,13 @@ RAPIOP 出现的初心就是，让任意技术栈的前端项目（目前只支�
 -   参考`examples/basic/index.ts`，创建一个新的实例。
 
     ```ts
-    import RAPIOP from "@rapiop/rapiop";
+    import rapiop from "@rapiop/rapiop";
     import { createBrowserHistory } from "history";
 
     // 路由可自定义，或通过其它方式实现，非必要
     const history = createBrowserHistory();
 
-    const app = RAPIOP({
+    const app = rapiop({
         // 产品配置，支持函数、异步函数
         config: {
             demo: {

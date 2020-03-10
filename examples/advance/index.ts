@@ -1,6 +1,7 @@
 import _ from 'lodash';
 
 import { loadStyle } from '@rapiop/rapiop/lib/lib/load';
+import { IFRAME_STATUS } from '@rapiop/rapiop/lib/plugins/iframe';
 
 import './style.css';
 import { init as initFrame } from './frame';
@@ -57,6 +58,16 @@ if (!isInIframe) {
     });
     app.hooks.error.tap('loading', () => {
         hideLoading();
+    });
+    app.hooks.iframeStatusChange.tap('loading', (projectKey: string, status: string) => {
+        switch (status) {
+            case IFRAME_STATUS.create:
+                showLoading();
+                break;
+            case IFRAME_STATUS.afterMount:
+                hideLoading();
+                break;
+        }
     });
 
     const anotherApp = initAnotherApp();

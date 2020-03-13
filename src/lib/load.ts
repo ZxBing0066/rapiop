@@ -2,13 +2,17 @@ import { scriptLoad, DependenceMap } from './scriptLoad';
 
 export { cacheScript, cacheScripts, loadScript, loadScripts } from './scriptLoad';
 
+const loadedStyleMap: { [href: string]: boolean } = {};
+
 export const loadStyle = (href: string) => {
+    if (loadedStyleMap[href]) return;
     const el = document.createElement('link');
     el.type = 'text/css';
     el.rel = 'stylesheet';
     el.href = href;
     const head = document.head || document.getElementsByTagName('head')[0];
     head.appendChild(el);
+    loadedStyleMap[href] = true;
 };
 
 export const loadStyles = (css: string[]) => {

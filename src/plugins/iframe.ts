@@ -1,4 +1,4 @@
-import SyncHook from '../tapable/lib/SyncHook';
+import SyncHook from '../tapable/SyncHook';
 
 import Hooks from '../Hooks';
 import getType from '../lib/getType';

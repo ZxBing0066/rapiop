@@ -1,5 +1,5 @@
-import SyncHook from './tapable/lib/SyncHook';
-import AsyncParallelHook from './tapable/lib/AsyncParallelHook';
+import SyncHook from './tapable/SyncHook';
+import AsyncParallelHook from './tapable/AsyncParallelHook';
 
 export type Hook = SyncHook | AsyncParallelHook;
 

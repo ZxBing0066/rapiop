@@ -1,10 +1,13 @@
 /examples
 /docs
 /src
+/scripts
 stats.json
 webpack.config.js
 .babelrc
 .eslintignore
 .eslintrc
+.github
+.vscode
 tsconfig.json
 yarn-error.log

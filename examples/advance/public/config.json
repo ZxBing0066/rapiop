@@ -13,7 +13,17 @@
         "files": ["/react-demo/index.js"],
         "prefix": "/react/",
         "href": "/react/",
-        "dependences": ["React", "ReactDOM"]
+        "dependences": ["React", "ReactDOM", "emotion", "emotionCore", "emotionStyled"]
+    },
+    "react15-demo": {
+        "files": [
+            "/react15-demo/static/css/main.5f361e03.chunk.css",
+            "/react15-demo/static/js/runtime-main.25f3807e.js",
+            "/react15-demo/static/js/2.0af4f219.chunk.js",
+            "/react15-demo/static/js/main.0659cb41.chunk.js"
+        ],
+        "prefix": "/react15-demo/",
+        "href": "/react15-demo/"
     },
     "vue-demo": {
         "files": ["/vue-demo/index.js"],
@@ -92,6 +102,9 @@
         },
         "Vue": ["https://cdn.jsdelivr.net/npm/vue/dist/vue.js"],
         "Backbone": ["https://backbonejs.org/backbone.js"],
-        "lodash": ["https://unpkg.com/lodash@4.17.15/lodash.min.js"]
+        "lodash": ["https://unpkg.com/lodash@4.17.15/lodash.min.js"],
+        "emotion": ["https://cdn.jsdelivr.net/npm/emotion@10.0.27/dist/emotion.umd.min.js"],
+        "emotionStyled": ["https://cdn.jsdelivr.net/npm/@emotion/styled@10.0.27/dist/styled.umd.min.js"],
+        "emotionCore": ["https://cdn.jsdelivr.net/npm/@emotion/core@10.0.28/dist/core.umd.min.js"]
     }
 }

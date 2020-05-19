@@ -1,0 +1,34 @@
+{
+  "name": "react15-demo",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "emotion": "9",
+    "emotion-theming": "^9",
+    "react": "^15",
+    "react-dom": "^15",
+    "react-emotion": "9",
+    "react-scripts": "3.4.1"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "PUBLIC_URL='/react15-demo/' INLINE_RUNTIME_CHUNK=false react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

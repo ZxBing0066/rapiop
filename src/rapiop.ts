@@ -426,6 +426,8 @@ const rapiop = (option: Option) => {
         register,
         hooks
     };
+    instance.loadResources = innerShared.loadResources;
+    instance.loadProject = async (projectKey: string) => await innerShared.loadResources(_config[projectKey], onError);
     // 挂载插件提供的实例属性
     const amendInstance = (amendedProps: Instance) => Object.assign(instance, amendedProps);
     hooks.amendInstance.call(instance, amendInstance);

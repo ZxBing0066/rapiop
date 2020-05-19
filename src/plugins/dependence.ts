@@ -62,9 +62,9 @@ class Plugin {
         });
         hooks.amendInnerShared.tap('amendInnerShared', (innerShared, amendInnerShared) => {
             amendInnerShared({
-                loadResources: (projectConfig: ProjectConfig, onError: OnError) => {
+                loadResources: async (projectConfig: ProjectConfig, onError: OnError) => {
                     const { files, dependences } = projectConfig;
-                    return loadResources(files, cacheBeforeRun, onError, dependences, this.dependenceMap);
+                    return await loadResources(files, cacheBeforeRun, onError, dependences, this.dependenceMap);
                 }
             });
         });

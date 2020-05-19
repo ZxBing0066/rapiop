@@ -19,7 +19,7 @@ export const loadStyles = (css: string[]) => {
     css.forEach(style => loadStyle(style));
 };
 
-export const loadResources = (
+export const loadResources = async (
     files: string[],
     cacheFirst?: boolean,
     onError?: (e: Error) => void,
@@ -29,8 +29,7 @@ export const loadResources = (
     if (!files || !files.length) return;
     const { js, css, unknown } = classifyFiles(files);
 
-    scriptLoad(js, cacheFirst, onError, dependences, dependenceMap);
-    loadStyles(css);
+    await Promise.all([scriptLoad(js, cacheFirst, onError, dependences, dependenceMap), loadStyles(css)]);
     if (unknown.length) {
         console.error(`load file error with unknown file type`, unknown);
     }

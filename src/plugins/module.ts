@@ -13,10 +13,13 @@ interface Option {
     cacheBeforeRun: boolean;
     onError: (e: Error) => Promise<any>;
 }
+
+type ModuleInfo = string | string[] | DependenceShape;
+
 interface ModuleConfig {
     baseUrl?: string;
     moduleMap?: {
-        [moduleName: string]: string | string[] | DependenceShape;
+        [moduleName: string]: ModuleInfo;
     };
 }
 interface ModuleOption {
@@ -26,10 +29,11 @@ interface ModuleOption {
 interface Module {
     import: AnyFunction;
     export: AnyFunction;
+    importModuleFromFiles: AnyFunction;
     config: AnyFunction;
 }
 
-function isShape(dependenceInfo: string | string[] | DependenceShape): dependenceInfo is DependenceShape {
+function isShape(dependenceInfo: ModuleInfo): dependenceInfo is DependenceShape {
     return isObject(dependenceInfo);
 }
 
@@ -64,9 +68,7 @@ export const createModule = (option: ModuleOption): Module => {
         (window as any)[nameSpaceKey] = nameSpace;
     }
 
-    const load = async (module: string) => {
-        const { baseUrl = '', moduleMap = {} } = moduleConfig;
-        const moduleInfo = moduleMap[module];
+    const loadModule = async (moduleInfo: ModuleInfo, baseUrl: string) => {
         if (!moduleInfo) return;
         let files: string[], dependences;
         if (isArray(moduleInfo)) {
@@ -84,6 +86,12 @@ export const createModule = (option: ModuleOption): Module => {
         if (unknown.length) {
             console.error(`Warning: load file error with unknown file type`, unknown);
         }
+    };
+
+    const load = async (module: string) => {
+        const { baseUrl = '', moduleMap = {} } = moduleConfig;
+        const moduleInfo = moduleMap[module];
+        await loadModule(moduleInfo, baseUrl);
     };
 
     const getModule = (module: string) => nameSpace[module];
@@ -132,10 +140,26 @@ export const createModule = (option: ModuleOption): Module => {
         jobs = jobs.filter(job => job != null);
     };
 
-    const _import = async (modules: string[] = []) => {
+    const _import = async (modules: string | string[] = []) => {
+        let isSingle = false;
+        if (typeof modules === 'string') {
+            modules = [modules];
+            isSingle = true;
+        }
         await Promise.all(modules.map(load));
         await checkModules(modules);
-        return modules.map(getModule);
+        return isSingle ? modules.map(getModule) : getModule(modules[0]);
+    };
+
+    const importModuleFromFiles = async (moduleName: string, moduleInfo: ModuleInfo) => {
+        const { baseUrl = '', moduleMap = {} } = moduleConfig;
+        if (moduleName in moduleMap) {
+            console.error(`Error: Module ${moduleName} already existed in moduleMap`);
+            return;
+        }
+        await loadModule(moduleInfo, baseUrl);
+        await checkModules([moduleName]);
+        return getModule(moduleName);
     };
 
     const _export = (moduleName: string, module: any) => {
@@ -153,6 +177,7 @@ export const createModule = (option: ModuleOption): Module => {
     return {
         import: _import,
         export: _export,
+        importModuleFromFiles,
         config
     };
 };

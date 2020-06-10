@@ -6,7 +6,8 @@ const isDevelopment = env === 'development';
 const analyzer = process.env.ANALYZER;
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
-const babelOptions = require('./babel.config.json');
+let babelOptions = require('./babel.config.json');
+// babelOptions = require('./babel-without-polyfill.config.json');
 
 const webpackConfig = {
     entry: {

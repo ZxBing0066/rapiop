@@ -6,9 +6,11 @@ const isDevelopment = env === 'development';
 const analyzer = process.env.ANALYZER;
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
+const babelOptions = require('./babel.config.json');
+
 const webpackConfig = {
     entry: {
-        main: './src/index.ts'
+        rapiop: './src/index.ts'
     },
     output: {
         path: path.resolve(__dirname, 'build'),
@@ -27,7 +29,10 @@ const webpackConfig = {
         rules: [
             {
                 test: /\.(ts|js)$/,
-                use: 'babel-loader',
+                use: {
+                    loader: 'babel-loader',
+                    options: babelOptions
+                },
                 exclude: /node_modules/
             }
         ]

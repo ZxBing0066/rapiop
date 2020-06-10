@@ -9,6 +9,7 @@
 # production
 /build
 /lib
+/lib-without-polyfill
 
 # misc
 .DS_Store

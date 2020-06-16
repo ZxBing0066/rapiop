@@ -148,7 +148,7 @@ export const createModule = (option: ModuleOption): Module => {
         }
         await Promise.all(modules.map(load));
         await checkModules(modules);
-        return isSingle ? modules.map(getModule) : getModule(modules[0]);
+        return isSingle ? getModule(modules[0]) : modules.map(getModule);
     };
 
     const importModuleFromFiles = async (moduleName: string, moduleInfo: ModuleInfo) => {

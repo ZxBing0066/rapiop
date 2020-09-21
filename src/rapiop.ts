@@ -402,8 +402,7 @@ const rapiop = (option: Option) => {
 
     const innerShared: InnerShared = {
         loadResources: (projectConfig: ProjectConfig, onError: OnError) => {
-            const { files } = projectConfig;
-            return loadResources(files, cacheBeforeRun, onError);
+            return loadResources(projectConfig, onError);
         }
     };
 

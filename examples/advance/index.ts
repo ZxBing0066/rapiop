@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-import { loadStyle } from '@rapiop/rapiop/lib/lib/load';
+import mod from '@rapiop/mod';
 import { IFRAME_STATUS } from '@rapiop/rapiop/lib/plugins/iframe';
 
 import './style.css';
@@ -13,7 +13,8 @@ const isInIframe = window.top !== window;
 const app = initApp(isInIframe);
 
 if (!isInIframe) {
-    loadStyle('https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css');
+    require('@rapiop/mod/lib/resolver/amd');
+    mod.import({ css: 'https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css' });
     initFrame();
 
     const mountDOM = document.getElementById('mount-dom');
@@ -76,3 +77,4 @@ if (!isInIframe) {
 }
 
 (window as any)._MY_APP = app;
+(window as any).mod = mod;

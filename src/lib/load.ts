@@ -1,35 +1,31 @@
-import { scriptLoad, DependenceMap } from './scriptLoad';
+import mod from '@rapiop/mod';
 
-export { cacheScript, cacheScripts, loadScript, loadScripts } from './scriptLoad';
+import { ProjectConfig } from '../interface';
 
-const loadedStyleMap: { [href: string]: boolean } = {};
+export interface DependenceShape {
+    dependences: string[];
+    files: string[];
+}
 
-export const loadStyle = (href: string) => {
-    if (loadedStyleMap[href]) return;
-    const el = document.createElement('link');
-    el.type = 'text/css';
-    el.rel = 'stylesheet';
-    el.href = href;
-    const head = document.head || document.getElementsByTagName('head')[0];
-    head.appendChild(el);
-    loadedStyleMap[href] = true;
-};
+export interface DependenceMap {
+    [key: string]: DependenceShape;
+}
 
-export const loadStyles = (css: string[]) => {
-    css.forEach(style => loadStyle(style));
-};
-
-export const loadResources = async (
-    files: string[],
-    cacheFirst?: boolean,
-    onError?: (e: Error) => void,
-    dependences?: string[],
-    dependenceMap?: DependenceMap
-) => {
+export const loadResources = async (projectConfig: ProjectConfig, onError?: (e: Error) => void) => {
+    const { files, dependences, orderExec } = projectConfig;
     if (!files || !files.length) return;
     const { js, css, unknown } = classifyFiles(files);
+    try {
+        await mod.import({
+            js,
+            css,
+            dep: dependences,
+            orderExec
+        });
+    } catch (error) {
+        onError(error);
+    }
 
-    await Promise.all([scriptLoad(js, cacheFirst, onError, dependences, dependenceMap), loadStyles(css)]);
     if (unknown.length) {
         console.error(`load file error with unknown file type`, unknown);
     }

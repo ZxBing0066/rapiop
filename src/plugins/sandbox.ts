@@ -1,7 +1,9 @@
 import { createSandbox } from 'z-sandbox';
+import { load } from '@rapiop/mod/lib/loader/fileLoader';
+import mod from '@rapiop/mod';
 
 import Hooks from '../Hooks';
-import { classifyFiles, cacheScripts, loadStyle } from '../lib/load';
+import { classifyFiles } from '../lib/load';
 import { ProjectConfig } from '../interface';
 
 interface OPTIONS {
@@ -25,28 +27,23 @@ export default class Sandbox {
         });
         hooks.loadResources.tapPromise(
             'sandbox load file',
-            (project: string, projectConfig: ProjectConfig, interceptor: any) => {
+            async (project: string, projectConfig: ProjectConfig, interceptor: any) => {
                 const { files, mode } = projectConfig;
                 const { intercept, fail } = interceptor;
-                return new Promise((resolve, reject) => {
-                    if (mode === 'sandbox') {
-                        intercept();
-                        if (projectMap[project]) return resolve();
-                        projectMap[project] = 1;
-                        const sandbox = createSandbox();
-                        const { js, css, unknown } = classifyFiles(files);
-                        cacheScripts(js).then((responses: XMLHttpRequest[]) => {
-                            responses.forEach(res => {
-                                sandbox(res.responseText);
-                            });
-                            resolve();
-                        });
-                        css.map(style => loadStyle(style));
-                        unknown && unknown.length && console.error('unkown files', unknown);
-                    } else {
-                        resolve();
-                    }
-                });
+
+                if (mode === 'sandbox') {
+                    intercept();
+                    if (projectMap[project]) return;
+                    projectMap[project] = 1;
+                    const sandbox = createSandbox();
+                    const { js, css, unknown } = classifyFiles(files);
+                    mod.import({ css });
+                    const contents = await Promise.all(js.map(load));
+                    contents.forEach(content => {
+                        sandbox(content);
+                    });
+                    unknown && unknown.length && console.error('unkown files', unknown);
+                }
             }
         );
     }

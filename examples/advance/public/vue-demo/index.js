@@ -1,8 +1,8 @@
 (() => {
     const APP = window._MY_APP;
+    const mod = window.mod;
 
-    APP.loadDependences(['Vue']).then(() => {
-        const Vue = window.Vue;
+    mod.import('vue').then(Vue => {
         const container = (() => {
             const div = document.createElement('div');
             div.id = 'vue-app';

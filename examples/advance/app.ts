@@ -1,14 +1,20 @@
 import _ from 'lodash';
 import { createBrowserHistory } from 'history';
 
+import mod from '@rapiop/mod';
 import RAPIOP from '@rapiop/rapiop';
 import FramePlugin from '@rapiop/rapiop/lib/plugins/frame';
 import IframePlugin from '@rapiop/rapiop/lib/plugins/iframe';
-import DependencesPlugin from '@rapiop/rapiop/lib/plugins/dependence';
 import PrefetchPlugin from '@rapiop/rapiop/lib/plugins/prefetch';
 import SandboxPlugin from '@rapiop/rapiop/lib/plugins/sandbox';
 
 import { getConfig } from './config';
+
+getConfig().then((config: any) => {
+    return mod.config({
+        modules: config.dependenceMap
+    });
+});
 
 export const init = (isInIframe: boolean) => {
     const history = createBrowserHistory();
@@ -18,21 +24,14 @@ export const init = (isInIframe: boolean) => {
         history,
         plugins: [
             new IframePlugin(),
-            new DependencesPlugin({
-                getDependenceMap: () => {
-                    return getConfig().then((config: any) => {
-                        return config.dependenceMap;
-                    });
-                }
-            }),
             new SandboxPlugin(),
-            ...(isInIframe
-                ? []
-                : [
-                      new PrefetchPlugin({
-                          autoPrefetchProjects: ['vue-demo']
-                      })
-                  ])
+            // ...(isInIframe
+            //     ? []
+            //     : [
+            //           new PrefetchPlugin({
+            //               autoPrefetchProjects: ['vue-demo']
+            //           })
+            //       ])
         ]
     });
 

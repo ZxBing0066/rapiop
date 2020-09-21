@@ -36,12 +36,12 @@
   "license": "MIT",
   "dependencies": {
     "@babel/runtime": "^7.6.0",
-    "@rapiop/scriptjs": "^2.5.10",
     "core-js": "^3.2.1",
     "lodash": "^4.17.13",
     "z-sandbox": "^0.0.11"
   },
   "devDependencies": {
+    "@rapiop/mod": "^0.0.8",
     "@babel/cli": "^7.6.0",
     "@babel/core": "^7.6.0",
     "@babel/plugin-proposal-class-properties": "^7.3.4",
@@ -68,6 +68,9 @@
     "webpack-bundle-analyzer": "^3.5.2",
     "webpack-cli": "^3.1.2",
     "webpack-dev-server": "^3.1.11"
+  },
+  "peerDependencies": {
+    "@rapiop/mod": "^0.0.7"
   },
   "jest": {
     "testMatch": [

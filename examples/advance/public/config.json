@@ -13,7 +13,7 @@
         "files": ["/react-demo/index.js"],
         "prefix": "/react/",
         "href": "/react/",
-        "dependences": ["React", "ReactDOM", "emotion", "emotionCore", "emotionStyled"]
+        "dependences": ["react", "react-dom", "emotion", "@emotion/core", "@emotion/styled"]
     },
     "react15-demo": {
         "files": [
@@ -29,7 +29,7 @@
         "files": ["/vue-demo/index.js"],
         "prefix": "/vue/",
         "href": "/vue/",
-        "depedences": ["Vue"]
+        "depedences": ["vue"]
     },
     "react-todo": {
         "files": [
@@ -74,7 +74,8 @@
         "mode": {
             "mode": "iframe",
             "cache": true
-        }
+        },
+        "orderExec": true
     },
     "todomvc-backbone-es6": {
         "files": [
@@ -89,22 +90,30 @@
         ],
         "prefix": "/todomvc-backbone-es6/",
         "href": "/todomvc-backbone-es6/",
-        "mode": "iframe"
+        "mode": "iframe",
+        "orderExec": true
     },
     "frame": {
         "files": ["/frame/index.js", "/frame/style.css"]
     },
     "dependenceMap": {
-        "React": { "files": ["https://unpkg.com/react@16.9.0/umd/react.production.min.js"] },
-        "ReactDOM": {
-            "files": ["https://unpkg.com/react-dom@16.9.0/umd/react-dom.production.min.js"],
-            "dependences": ["React"]
+        "react": { "js": ["https://unpkg.com/react@16.9.0/umd/react.production.min.js"], "type": "amd" },
+        "react-dom": {
+            "js": ["https://unpkg.com/react-dom@16.9.0/umd/react-dom.production.min.js"],
+            "dep": ["react"],
+            "type": "amd"
         },
-        "Vue": ["https://cdn.jsdelivr.net/npm/vue/dist/vue.js"],
-        "Backbone": ["https://backbonejs.org/backbone.js"],
-        "lodash": ["https://unpkg.com/lodash@4.17.15/lodash.min.js"],
-        "emotion": ["https://cdn.jsdelivr.net/npm/emotion@10.0.27/dist/emotion.umd.min.js"],
-        "emotionStyled": ["https://cdn.jsdelivr.net/npm/@emotion/styled@10.0.27/dist/styled.umd.min.js"],
-        "emotionCore": ["https://cdn.jsdelivr.net/npm/@emotion/core@10.0.28/dist/core.umd.min.js"]
+        "vue": { "js": ["https://cdn.jsdelivr.net/npm/vue/dist/vue.js"], "type": "amd" },
+        "backbone": { "js": ["https://backbonejs.org/backbone.js"], "type": "amd" },
+        "lodash": { "js": ["https://unpkg.com/lodash@4.17.15/lodash.min.js"], "type": ["global", "_"] },
+        "emotion": { "js": ["https://cdn.jsdelivr.net/npm/emotion@10.0.27/dist/emotion.umd.min.js"], "type": "amd" },
+        "@emotion/styled": {
+            "js": ["https://cdn.jsdelivr.net/npm/@emotion/styled@10.0.27/dist/styled.umd.min.js"],
+            "type": "amd"
+        },
+        "@emotion/core": {
+            "js": ["https://cdn.jsdelivr.net/npm/@emotion/core@10.0.28/dist/core.umd.min.js"],
+            "type": "amd"
+        }
     }
 }

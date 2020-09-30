@@ -70,7 +70,7 @@ const getConfig = () => config;
     }[historyType];
 
     const app = new RAPIOP({
-        config: getConfig,
+        getConfig,
         history,
         mountDOM
     });

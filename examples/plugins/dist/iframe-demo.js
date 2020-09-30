@@ -1,6 +1,4 @@
-window.app.loadDependences(['React', 'ReactDOM'], () => {
-    const React = window.React;
-    const ReactDOM = window.ReactDOM;
+window.mod.import(['react', 'react-dom']).then(([React, ReactDOM]) => {
     window.app.register(
         'iframe-demo',
         mountDOM => {

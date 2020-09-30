@@ -2,8 +2,9 @@ import _ from 'lodash';
 import { createBrowserHistory } from 'history';
 import RAPIOP from '@rapiop/rapiop';
 import FramePlugin from '@rapiop/rapiop/lib/plugins/frame';
-import DependencePlugin from '@rapiop/rapiop/lib/plugins/dependence';
 import IframePlugin from '@rapiop/rapiop/lib/plugins/iframe';
+import mod from '@rapiop/mod';
+import '@rapiop/mod/lib/resolver/amd';
 
 const config = {
     demo: {
@@ -43,32 +44,27 @@ const config = {
     }
 };
 const dependenceMap = {
-    React: { files: ['https://unpkg.com/react@16.9.0/umd/react.production.min.js'] },
-    ReactDOM: { files: ['https://unpkg.com/react-dom@16.9.0/umd/react-dom.production.min.js'], dependences: ['React'] },
-    lodash: { files: ['https://unpkg.com/lodash@4.17.15/lodash.min.js'] },
-    test: { files: ['/test.js'], dependences: ['React', 'ReactDOM'] },
-    'error-dependence': { files: ['https://error.js'] }
+    react: { js: ['https://unpkg.com/react@16.9.0/umd/react.production.min.js'], type: 'amd' },
+    'react-dom': {
+        js: ['https://unpkg.com/react-dom@16.9.0/umd/react-dom.production.min.js'],
+        dep: ['react'],
+        type: 'amd'
+    },
+    lodash: { js: ['https://unpkg.com/lodash@4.17.15/lodash.min.js'], type: 'amd' },
+    'error-dependence': { js: ['https://error.js'] }
 };
 
 function getConfig() {
     return config;
 }
+mod.config({ modules: dependenceMap });
+const isIframe = window.top != window;
 
 const history = createBrowserHistory();
 const app = new RAPIOP({
     config: getConfig,
     history,
-    plugins: [
-        new IframePlugin(),
-        new FramePlugin(),
-        new DependencePlugin({
-            getDependenceMap: () => Promise.resolve(dependenceMap),
-            onError: (e: Error) => {
-                alert(`load dependence error`);
-                console.error(e);
-            }
-        })
-    ],
+    plugins: [...(isIframe ? [new IframePlugin()] : []), new FramePlugin()],
     onError: (e: Error) => {
         console.error(e);
         alert(`error`);
@@ -121,3 +117,4 @@ app.getConfig = () => config;
 app.history = history;
 
 (window as any).app = app;
+(window as any).mod = mod;

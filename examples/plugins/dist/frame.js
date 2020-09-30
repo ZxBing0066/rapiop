@@ -1,4 +1,5 @@
-window.app.loadDependences(['lodash'], () => {
+window.mod.import(['lodash']).then(() => {
+    console.log(123);
     const app = window.app;
     const _ = window._;
     app.registerFrame(() => {

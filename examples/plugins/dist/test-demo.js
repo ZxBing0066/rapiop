@@ -1,4 +1,4 @@
-window.app.loadDependences(['test'], () => {
+window.mod.import(['test.js']).then(() => {
     window.app.register(
         'test-demo',
         mountDOM => {

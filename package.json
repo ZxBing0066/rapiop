@@ -41,7 +41,7 @@
     "z-sandbox": "^0.0.11"
   },
   "devDependencies": {
-    "@rapiop/mod": "^0.0.8",
+    "@rapiop/mod": "^0.1.0",
     "@babel/cli": "^7.6.0",
     "@babel/core": "^7.6.0",
     "@babel/plugin-proposal-class-properties": "^7.3.4",
@@ -70,7 +70,7 @@
     "webpack-dev-server": "^3.1.11"
   },
   "peerDependencies": {
-    "@rapiop/mod": "^0.0.7"
+    "@rapiop/mod": "^0.1.0"
   },
   "jest": {
     "testMatch": [

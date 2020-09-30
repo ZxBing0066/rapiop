@@ -1165,10 +1165,10 @@
     "@types/yargs" "^15.0.0"
     chalk "^3.0.0"
 
-"@rapiop/mod@^0.0.8":
-  version "0.0.8"
-  resolved "https://registry.yarnpkg.com/@rapiop/mod/-/mod-0.0.8.tgz#015f0a728a4712d90cf52157ea1b5597b3d373e1"
-  integrity sha512-P48M1NnF/U7DhJHVN5y872dekW4bBytn3ETrI04paoRf8Hu5PksIUHpAZFD5lAyfERrGg4F08eLjFjiFq4vDbg==
+"@rapiop/mod@^0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@rapiop/mod/-/mod-0.1.0.tgz#322ec10153180066926a8c19a8e43da6150ce411"
+  integrity sha512-fDEWblQhodpZlAEyf1uCu6TQOlI6MtD0/7wnuwGzDi05IfNwF8ZjzTk9Z34rdqzV6QgbfG+elB55SmMmZAzgWg==
   dependencies:
     "@babel/runtime" "^7.10.2"
     core-js "^3.6.5"

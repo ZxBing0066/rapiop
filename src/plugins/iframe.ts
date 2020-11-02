@@ -128,7 +128,7 @@ export default class Iframe {
                 if (cachedQueue.length > cachedLimit) {
                     cachedQueue.shift().destroy();
                 }
-                if (supportMemoryOptimization) {
+                if (supportMemoryOptimization && cachedQueue.length) {
                     const usedJSHeapSize = (window.performance as any).memory.usedJSHeapSize;
                     if (usedJSHeapSize > memoryLimit) {
                         cachedQueue.shift().destroy();

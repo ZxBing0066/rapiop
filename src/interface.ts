@@ -34,6 +34,7 @@ export interface Option {
     mountDOM?: Element;
     onError?: OnError;
     cacheBeforeRun?: boolean;
+    getProjectKeyFromPath?: (path: string, config: Config) => string;
     [propName: string]: any;
 }
 export interface ProjectOption {

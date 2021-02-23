@@ -38,7 +38,7 @@ class AsyncParallelHook extends Hook {
                     switch (type) {
                         case 'async': {
                             return new Promise((resolve, reject) => {
-                                fn(...args, (err: Error, result: Result) => {
+                                fn(...args, (err: Error, result: any) => {
                                     if (err) {
                                         reject(err);
                                     } else {

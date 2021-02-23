@@ -112,7 +112,7 @@ export default class Hooks {
     /**
      * 刷新项目
      */
-    refresh = new SyncHook();
+    refresh = new SyncHook([]);
     /**
      * 报错
      * @param error 错误信息

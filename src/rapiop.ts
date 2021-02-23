@@ -1,5 +1,5 @@
 import { loadResources } from './lib/load';
-import { getProjectkeyFromPath } from './lib/route';
+import { getProjectKeyFromPath } from './lib/route';
 import { createInterceptor } from './lib/interceptor';
 import { ErrorType } from './lib/error';
 import {
@@ -20,7 +20,7 @@ import Hooks, { Hook } from './Hooks';
 /**
  * 生命周期函数
  */
-const asyncLifeCyleHelper = async ({
+const asyncLifeCycleHelper = async ({
     hooks,
     projectKey,
     projectConfig = {},
@@ -94,7 +94,7 @@ const mountProject = async ({
         return;
     }
 
-    return await asyncLifeCyleHelper({
+    return await asyncLifeCycleHelper({
         hooks: {
             before: hooks.beforeMount,
             main: hooks.mount,
@@ -129,7 +129,7 @@ const unmountProject = async ({
         return;
     }
 
-    return await asyncLifeCyleHelper({
+    return await asyncLifeCycleHelper({
         hooks: {
             before: hooks.beforeUnmount,
             main: hooks.unmount,
@@ -164,7 +164,7 @@ const loadProjectResources = async ({
         return false;
     }
 
-    return await asyncLifeCyleHelper({
+    return await asyncLifeCycleHelper({
         hooks: {
             main: hooks.loadResources
         },
@@ -196,7 +196,7 @@ const enterProject = async ({
     onError: OnError;
     loadResources: AnyFunction;
 }): Promise<boolean> => {
-    return await asyncLifeCyleHelper({
+    return await asyncLifeCycleHelper({
         hooks: {
             main: hooks.enter
         },
@@ -245,7 +245,7 @@ const exitProject = async ({
     onError: OnError;
 }): Promise<boolean> => {
     if (projectKey) {
-        return await asyncLifeCyleHelper({
+        return await asyncLifeCycleHelper({
             hooks: {
                 main: hooks.exit
             },
@@ -286,7 +286,9 @@ const rapiop = (option: Option) => {
         // 项目挂载节点
         mountDOM: initedMountDOM,
         // 错误时的回调
-        onError = () => {}
+        onError = () => {},
+        // 自定义路由匹配的函数
+        getProjectKeyFromPath: customGetProjectKeyFromPath
     } = option;
     let {
         // 项目路由配置信息，支持函数和 Promise
@@ -311,7 +313,8 @@ const rapiop = (option: Option) => {
             // console.info(`Config is not provided`);
             return;
         }
-        const projectKey = getProjectkeyFromPath(location.pathname, _config) || fallbackProjectKey;
+        const projectKey =
+            (customGetProjectKeyFromPath || getProjectKeyFromPath)(location.pathname, _config) || fallbackProjectKey;
         // 匹配的项目未改变，不处理
         if (mountedProjectKey === projectKey) {
             // console.info(`Project ${projectKey} was mounted`);
@@ -379,7 +382,7 @@ const rapiop = (option: Option) => {
     // hooks tap
     // 提供 mountDOM
     hooks.mountDOM.tap('provide mount dom', (dom: Element) => {
-        if (mountDOM) return console.error("Can't set mountDOM repeatly");
+        if (mountDOM) return console.error("Can't set mountDOM repeatedly");
         mountDOM = dom;
         // trigger afterMountDOM hook
         setTimeout(() => {
@@ -391,7 +394,7 @@ const rapiop = (option: Option) => {
         hooks.mountDOM.call(initedMountDOM);
     }
 
-    // 触发 refresh、mountDOM 提供、项目注册、配置获取完成、hostory 更新时 更新项目
+    // 触发 refresh、mountDOM 提供、项目注册、配置获取完成、history 更新时 更新项目
     if (history) {
         history.listen(refresh);
     }

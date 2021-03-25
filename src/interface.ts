@@ -23,7 +23,7 @@ export interface Config {
     [key: string]: ProjectConfig;
 }
 
-export type GetConfig = () => Promise<Config>;
+type GetConfig = () => Promise<Config>;
 
 // 实例的初始化配置
 export interface Option {

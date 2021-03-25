@@ -4,7 +4,6 @@ import { createInterceptor } from './lib/interceptor';
 import { ErrorType } from './lib/error';
 import {
     Config,
-    GetConfig,
     ProjectConfig,
     Option,
     ProjectOption,
@@ -279,8 +278,6 @@ const rapiop = (option: Option) => {
         plugins = [],
         // 无匹配项目时的默认项目
         fallbackProjectKey = 'home',
-        // 加载 js 代码时优先缓存文件，然后执行，减少串行等待时间
-        cacheBeforeRun = true,
         // 自定义 history 对象
         history,
         // 项目挂载节点
@@ -308,15 +305,15 @@ const rapiop = (option: Option) => {
     const registerConfig: RegisterConfig = {};
 
     // 更新项目
-    const _refresh = async () => {
+    const _refresh = async (force?: boolean) => {
         if (!_config) {
             // console.info(`Config is not provided`);
             return;
         }
         const projectKey =
             (customGetProjectKeyFromPath || getProjectKeyFromPath)(location.pathname, _config) || fallbackProjectKey;
-        // 匹配的项目未改变，不处理
-        if (mountedProjectKey === projectKey) {
+        // 匹配的项目未改变，不处理，force 时强行重新加载
+        if (!force || mountedProjectKey === projectKey) {
             // console.info(`Project ${projectKey} was mounted`);
             return;
         }
@@ -415,10 +412,10 @@ const rapiop = (option: Option) => {
     };
     plugins.forEach(plugin => registerPlugin(plugin));
 
-    type RegisterArgs = Parameters<typeof register>;
     interface Instance {
-        register: (...args: RegisterArgs) => void;
+        register: typeof register;
         hooks: Hooks;
+        refresh: typeof refresh;
         [key: string]: any;
     }
     const amendInnerShared = (amendProps: any) => Object.assign(innerShared, amendProps);
@@ -426,7 +423,8 @@ const rapiop = (option: Option) => {
     // 返回的实例
     let instance: Instance = {
         register,
-        hooks
+        hooks,
+        refresh
     };
     instance.loadResources = innerShared.loadResources;
     instance.loadProject = async (projectKey: string) => await innerShared.loadResources(_config[projectKey], onError);
@@ -441,7 +439,7 @@ const rapiop = (option: Option) => {
             if (!config) {
                 console.error(`Must provide a config`);
             } else if (typeof config === 'function') {
-                _config = await (config as GetConfig)();
+                _config = await config();
             } else {
                 _config = config;
             }

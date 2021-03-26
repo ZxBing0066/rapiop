@@ -313,7 +313,7 @@ const rapiop = (option: Option) => {
         const projectKey =
             (customGetProjectKeyFromPath || getProjectKeyFromPath)(location.pathname, _config) || fallbackProjectKey;
         // 匹配的项目未改变，不处理，force 时强行重新加载
-        if (!force || mountedProjectKey === projectKey) {
+        if (!force && mountedProjectKey === projectKey) {
             // console.info(`Project ${projectKey} was mounted`);
             return;
         }

@@ -345,17 +345,17 @@ const rapiop = (option: Option) => {
         }
     };
 
-    const refresh = async () => {
+    const refresh = async (force?: boolean) => {
         if (lock) {
             queuing = true;
             return;
         }
         lock = true;
-        await _refresh();
+        await _refresh(force);
         lock = false;
         if (queuing) {
             queuing = false;
-            refresh();
+            refresh(force);
         }
     };
 

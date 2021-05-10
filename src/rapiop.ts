@@ -393,12 +393,12 @@ const rapiop = (option: Option) => {
 
     // 触发 refresh、mountDOM 提供、项目注册、配置获取完成、history 更新时 更新项目
     if (history) {
-        history.listen(refresh);
+        history.listen(() => refresh());
     }
-    hooks.refresh.tap('refresh', refresh);
-    hooks.afterConfig.tap('refresh afterConfig', refresh);
-    hooks.afterMountDOM.tap('refresh afterMountDOM', refresh);
-    hooks.afterRegister.tap('refresh afterRegister', refresh);
+    hooks.refresh.tap('refresh', () => refresh());
+    hooks.afterConfig.tap('refresh afterConfig', () => refresh());
+    hooks.afterMountDOM.tap('refresh afterMountDOM', () => refresh());
+    hooks.afterRegister.tap('refresh afterRegister', () => refresh());
 
     const innerShared: InnerShared = {
         loadResources: (projectConfig: ProjectConfig, onError: OnError) => {

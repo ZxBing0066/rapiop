@@ -305,13 +305,15 @@ const rapiop = (option: Option) => {
     const registerConfig: RegisterConfig = {};
 
     // 更新项目
-    const _refresh = async (force?: boolean) => {
+    const _refresh = async (force?: boolean, forceProjectKey?: string) => {
         if (!_config) {
             // console.info(`Config is not provided`);
             return;
         }
         const projectKey =
-            (customGetProjectKeyFromPath || getProjectKeyFromPath)(location.pathname, _config) || fallbackProjectKey;
+            forceProjectKey ||
+            (customGetProjectKeyFromPath || getProjectKeyFromPath)(location.pathname, _config) ||
+            fallbackProjectKey;
         // 匹配的项目未改变，不处理，force 时强行重新加载
         if (!force && mountedProjectKey === projectKey) {
             // console.info(`Project ${projectKey} was mounted`);
@@ -345,13 +347,13 @@ const rapiop = (option: Option) => {
         }
     };
 
-    const refresh = async (force?: boolean) => {
+    const refresh = async (force?: boolean, forceProjectKey?: string) => {
         if (lock) {
             queuing = true;
             return;
         }
         lock = true;
-        await _refresh(force);
+        await _refresh(force, forceProjectKey);
         lock = false;
         if (queuing) {
             queuing = false;

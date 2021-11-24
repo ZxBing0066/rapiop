@@ -41,7 +41,6 @@
     "z-sandbox": "^0.0.11"
   },
   "devDependencies": {
-    "@rapiop/mod": "^0.1.0",
     "@babel/cli": "^7.6.0",
     "@babel/core": "^7.6.0",
     "@babel/plugin-proposal-class-properties": "^7.3.4",
@@ -50,6 +49,7 @@
     "@babel/plugin-transform-runtime": "^7.6.0",
     "@babel/preset-env": "^7.6.0",
     "@babel/preset-typescript": "^7.3.3",
+    "@rapiop/mod": "^1",
     "@types/lodash": "^4.14.136",
     "@types/tapable": "^1.0.4",
     "babel-eslint": "^10.0.1",
@@ -63,14 +63,14 @@
     "jest": "^25.3.0",
     "prettier": "^1",
     "typedoc": "^0.15.0",
-    "typescript": "^3.3.3333",
+    "typescript": "^4.5.2",
     "webpack": "^4.23.1",
     "webpack-bundle-analyzer": "^3.5.2",
     "webpack-cli": "^3.1.2",
     "webpack-dev-server": "^3.1.11"
   },
   "peerDependencies": {
-    "@rapiop/mod": "^0.1.0"
+    "@rapiop/mod": "^0.1 | ^1"
   },
   "jest": {
     "testMatch": [

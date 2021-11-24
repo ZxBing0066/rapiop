@@ -42,10 +42,14 @@ function getExtension(path: string = '') {
 }
 
 export const classifyFiles = (files: string[]) => {
-    const classifyFiles = {
-        js: [] as string[],
-        css: [] as string[],
-        unknown: [] as string[]
+    const classifyFiles: {
+        js: string[];
+        css: string[];
+        unknown: string[];
+    } = {
+        js: [],
+        css: [],
+        unknown: []
     };
     const { js, css, unknown } = classifyFiles;
     files.forEach(file => {

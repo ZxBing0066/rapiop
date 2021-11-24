@@ -1165,10 +1165,10 @@
     "@types/yargs" "^15.0.0"
     chalk "^3.0.0"
 
-"@rapiop/mod@^0.1.0":
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@rapiop/mod/-/mod-0.1.0.tgz#322ec10153180066926a8c19a8e43da6150ce411"
-  integrity sha512-fDEWblQhodpZlAEyf1uCu6TQOlI6MtD0/7wnuwGzDi05IfNwF8ZjzTk9Z34rdqzV6QgbfG+elB55SmMmZAzgWg==
+"@rapiop/mod@^1":
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/@rapiop/mod/-/mod-1.1.2.tgz#190b27dea067e02454fe58b5a145c37e97fd7843"
+  integrity sha512-HDMB9DBdFn8aLZdFN0y+FP2iLEcC+b2nJKzmv3y2fN+MNJvCdp8RPWpWOar2W6wmrj1x48jgp+aA1uDEoCDgRw==
   dependencies:
     "@babel/runtime" "^7.10.2"
     core-js "^3.6.5"
@@ -7578,10 +7578,10 @@ typescript@3.5.x:
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.5.3.tgz#c830f657f93f1ea846819e929092f5fe5983e977"
   integrity sha512-ACzBtm/PhXBDId6a6sDJfroT2pOWt/oOnk4/dElG5G33ZL776N3Y6/6bKZJBFpd+b05F3Ct9qDjMeJmRWtE2/g==
 
-typescript@^3.3.3333:
-  version "3.6.3"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.6.3.tgz#fea942fabb20f7e1ca7164ff626f1a9f3f70b4da"
-  integrity sha512-N7bceJL1CtRQ2RiG0AQME13ksR7DiuQh/QehubYcghzv20tnh+MQnQIuJddTmsbqYj+dztchykemz0zFzlvdQw==
+typescript@^4.5.2:
+  version "4.5.2"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.5.2.tgz#8ac1fba9f52256fdb06fb89e4122fa6a346c2998"
+  integrity sha512-5BlMof9H1yGt0P8/WF+wPNw6GfctgGjXp5hkblpyT+8rkASSmkUKMXrxR0Xg8ThVCi/JnHQiKXeBaEwCeQwMFw==
 
 uglify-js@3.4.x:
   version "3.4.10"
